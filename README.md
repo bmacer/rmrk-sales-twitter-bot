@@ -10,7 +10,7 @@ Once we parse for a matching transaction, we create our message, and send it to 
 
 # Requirements
 
-Node and Twitter API keys
+node+yarn and Twitter API keys
 
 You need to be a [Twitter developer](https://developer.twitter.com) which requires applying to Twitter and their acceptance of your use case.
 
@@ -18,11 +18,20 @@ Once you're onboard, create a Standaone App, view the App details, click on *Key
 
 # Running
 
-Clone this repository and opulate a file `.env` with your API keys and secrets.  For example:
+Clone this repository and run `yarn` then populate a file `.env` with your API keys and secrets.  For example:
 
 TWITTER_API_KEY="abc"
 TWITTER_API_KEY_SECRET="def"
 TWITTER_ACCESS_TOKEN="ghi"
 TWITTER_ACCESS_TOKEN_SECRET="jkl"
 
-Then run `node index.js` and watch it work.
+Then run `node index.js` and watch it work.  You'll see a stream of blocks as they are witnessed and parsed:
+
+block: 10237880 (0x6877e02a724970cb1837d8764da9e30206cff6da3c4b0866daf3b61e7773cc62)
+block: 10237881 (0xf0124a430bea47cb8c1d881fe31c8b3f8becd39cacd2e7da49b368109dfcc530)
+block: 10237882 (0x2be03fa8b1268ff926b1c20ee20d8eefe3dcc3885b3c68b4232eb1f8c3d6a560)
+block: 10237883 (0x1743ac5cca676dab4cf6720bd70a5b3a18f6661b13feef196c4cdfdb11d0589c)
+
+The console output is also written to logs.log.
+
+When a sale is witnessed, the log will show the Tweet, and the Tweet will be sent:
