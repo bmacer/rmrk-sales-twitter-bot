@@ -14,7 +14,7 @@ module.exports.main = async function tweet(tweet) {
     twitterClient.tweets.statusesUpdate({
         status: tweet
     }).then(response => {
-        console.log("Tweeted!", response)
+        console.log("Tweeted!  Tweet ID: ", response.id)
     }).catch(err => {
         console.error(err)
     })
