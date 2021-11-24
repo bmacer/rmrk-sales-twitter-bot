@@ -36,4 +36,9 @@ block: 10237883 (0x1743ac5cca676dab4cf6720bd70a5b3a18f6661b13feef196c4cdfdb11d05
 
 The console output is also written to logs.log.
 
-When a sale is witnessed, the log will show the Tweet, and the Tweet will be sent:
+When a sale is witnessed, the log will show the Tweet, and the Tweet will be sent.
+
+# Testing
+
+You can switch the comment for the websocket connection to run in dev mode, with a local Polkadot node running.
+You might want to use some of the test interactions [here](https://github.com/bmacer/rmrk2-interaction-examples) to see it work, or you can generate your own RMRKs with rmrk-tools.
