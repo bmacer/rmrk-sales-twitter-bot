@@ -20,10 +20,12 @@ Once you're onboard, create a Standaone App, view the App details, click on *Key
 
 Clone this repository and run `yarn` then populate a file `.env` with your API keys and secrets.  For example:
 
+```
 TWITTER_API_KEY="abc"
 TWITTER_API_KEY_SECRET="def"
 TWITTER_ACCESS_TOKEN="ghi"
 TWITTER_ACCESS_TOKEN_SECRET="jkl"
+```
 
 Then run `node index.js` and watch it work.  You'll see a stream of blocks as they are witnessed and parsed:
 
