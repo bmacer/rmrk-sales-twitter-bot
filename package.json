@@ -1,0 +1,12 @@
+{
+  "name": "rmrk-twitter-bot",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@polkadot/api": "^6.9.2",
+    "dotenv": "^10.0.0",
+    "twitter-api-client": "^1.4.0"
+  }
+}
