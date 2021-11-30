@@ -37,7 +37,7 @@ function getChildrenAndSend(s, q) {
     });
 
     child.stdout.on('data', (data) => {
-        sendMessage(`${s} ${data.toString()}`);
+        webex.post(`${s} ${data.toString()}`);
         console.log(`${s}\n${data.toString()}`);
     });
 
