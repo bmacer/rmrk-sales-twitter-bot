@@ -5,7 +5,79 @@ const require = createRequire(import.meta.url);
 const fs = require('fs');
 const twit = require("./twitter.cjs");
 
-const MINIMUM_V1_PRICE = 0.05
+const LOGFILE = "listings.txt"
+
+require('dotenv').config()
+
+const axios = require('axios');
+
+const sendMessage = async (message) => {
+    try {
+        const data = {
+            'toPersonEmail': "bmacer@cisco.com",
+            'text': message
+        };
+        const config = {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${process.env.WEBEX_API}`
+            }
+        };
+        console.log(config)
+        const res = await axios.post('https://webexapis.com/v1/messages', data, config);
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+sendMessage("ok");
+
+
+
+
+
+
+
+function getChildrenAndSend(s, q) {
+    const { spawn } = require('child_process');
+
+    let child = spawn(
+        '/home/ec2-user/rmrk2-rust-consolidator/target/release/rmrk2-rust-consolidator',
+        [
+            '--input',
+            '/home/ec2-user/full-results.json',
+            q
+        ]
+    );
+
+    child.on('exit', function (code, signal) {
+        console.log('child process exited with ' +
+            `code ${code} and signal ${signal}`);
+    });
+
+    child.stdout.on('data', (data) => {
+        d = data
+        sendMessage(`${s} ${d.toString()}`);
+        console.log(d);
+        console.log(`${s}\n${data}`);
+        return data;
+    });
+
+    child.stderr.on('data', (data) => {
+        console.error(`child stderr: \n${data}`);
+    });
+}
+
+
+
+
+
+
+// /home/ec2-user/rmrk2-rust-consolidator/target/release/rmrk2-rust-consolidator --input /home/ec2-user/full-results.json 8788603-e0b9bdcc456a36497a-KANHAND-1f4a3_objectleft-00000978
+
+
+
+const MINIMUM_V1_PRICE = 3
 const MINIMUM_V2_PRICE = 0.01
 
 const provider = new WsProvider('wss://node.rmrk.app') // Use for production
@@ -21,15 +93,42 @@ function twitter_rmrk_bot() {
             return
         }
         latest_block = header.number - 1;
-
+	if (latest_block % 600 == 0) {
+		sendMessage(`keepalive at block ${latest_block}`)
+	}
         // We console.log and write to file just to see the stream of blocks we're receiving (to know we're alive)
         console.log(`block: ${header.number - 1} (${header.parentHash})`);
-        fs.appendFile('logs.log', `block: ${header.number - 1} (${header.parentHash})\n`, () => { });
+        fs.appendFile('logs.txt', `block: ${header.number - 1} (${header.parentHash})\n`, () => { });
 
         // Subscribing to blocks
         const getBlock = api.rpc.chain.getBlock(header.parentHash).then((block) => {
             // Loop through extrinsics
             block.block.extrinsics.forEach((i) => {
+		if (i.method.section == "system") {
+                    let caller = i.signature.signer
+                    // console.log(i);
+                    let parts = i.args[0].toHuman().split("::")
+                    // console.log(parts);
+                    // console.log(parts)
+                    if (parts.length > 3) {
+                        let interaction = parts[1]
+
+                        // if (interaction == "LIST") {
+                        let version = parts[2];
+                        let nft = parts[3]
+                        let price = parts[4]
+                        let link = version == "1.0.0" ? `https://singular.rmrk.app/collectibles/${nft}` : `https://kanaria.rmrk.app/catalogue/${nft}`
+                        let string = `${price / 10 ** 12}KSM ${interaction} ${version} (block ${latest_block}) ${link}\n`
+                        console.log(string)
+                        if (version == "2.0.0") {
+                            // sendMessage(string)
+                            getChildrenAndSend(string, nft)
+                        }
+                        fs.appendFile(LOGFILE, string, () => { });
+                        // }
+                    }
+
+                }
                 // Since BUY only exists properly in "utility" extrinsics, we don't care about anything else
                 if (i.method.section == "utility") {
                     // Initialize our values
@@ -59,20 +158,20 @@ function twitter_rmrk_bot() {
                     // Only if our assignments were successful should we sent to our publishing api
                     if (nft != "" && purchase_price != 0 && purchaser != "") {
                         if (version == "1.0.0" && purchase_price >= MINIMUM_V1_PRICE * (10 ** 12)) {
-                            let statement = `Singular RMRK sale alert! https://singular.rmrk.app/collectibles/${nft} was purchased for ${purchase_price / (10 ** 12)}KSM by ${purchaser}`
-                            fs.appendFile('logs.log', `${statement}\n`, () => { });
+                            let statement = `Singular RMRK Large Purchase (${purchase_price / (10 ** 12)}KSM): https://singular.rmrk.app/collectibles/${nft} was purchased by ${purchaser} on Kusama block ${latest_block}`
+                            fs.appendFile('logs.txt', `${statement}\n`, () => { });
                             console.log(statement)
                             twit.main(statement)
                         } else if (version == "2.0.0" && purchase_price >= MINIMUM_V2_PRICE * (10 ** 12)) {
-                            let statement = `Kanaria RMRK sale alert! https://kanaria.rmrk.app/catalogue/${nft} was purchased for ${purchase_price / (10 ** 12)}KSM by ${purchaser}`
-                            fs.appendFile('logs.log', `${statement}\n`, () => { });
+                            let statement = `Kanaria Sale Alert! (${purchase_price / (10 ** 12)}KSM) https://kanaria.rmrk.app/catalogue/${nft} was purchased by ${purchaser} on Kusama block ${latest_block}`
+                            fs.appendFile('logs.txt', `${statement}\n`, () => { });
                             console.log(statement)
                             twit.main(statement)
                         } else {
                             // if version *isn't* 1.0.0 or 2.0.0 (which shouldn't happen) or if threshold isn't met
                             let statement = `RMRK sale minimum not met -- ${version}: ${nft} was purchased for ${purchase_price / (10 ** 12)}KSM by ${purchaser}`
                             console.log(statement)
-                            fs.appendFile('logs.log', `${statement}\n`, () => { });
+                            fs.appendFile('logs.txt', `${statement}\n`, () => { });
                         }
                     }
                 }
