@@ -4,6 +4,9 @@ import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const fs = require('fs');
 const twit = require("./twitter.cjs");
+const telegram = require("./telegram.cjs");
+
+telegram.post("Running")
 
 const MINIMUM_V1_PRICE = 0.05
 const MINIMUM_V2_PRICE = 0.01
@@ -59,15 +62,19 @@ function twitter_rmrk_bot() {
                     // Only if our assignments were successful should we sent to our publishing api
                     if (nft != "" && purchase_price != 0 && purchaser != "") {
                         if (version == "1.0.0" && purchase_price >= MINIMUM_V1_PRICE * (10 ** 12)) {
-                            let statement = `Singular RMRK sale alert! https://singular.rmrk.app/collectibles/${nft} was purchased for ${purchase_price / (10 ** 12)}KSM by ${purchaser}`
-                            fs.appendFile('logs.log', `${statement}\n`, () => { });
-                            console.log(statement)
-                            twit.main(statement)
+                            // I don't care about 1.0.0 for now.
+                            // let statement = `Singular RMRK sale alert! https://singular.rmrk.app/collectibles/${nft} was purchased for ${purchase_price / (10 ** 12)}KSM by ${purchaser}`
+                            // fs.appendFile('logs.log', `${statement}\n`, () => { });
+                            // console.log(statement)
+                            // twit.main(statement)
                         } else if (version == "2.0.0" && purchase_price >= MINIMUM_V2_PRICE * (10 ** 12)) {
-                            let statement = `Kanaria RMRK sale alert! https://kanaria.rmrk.app/catalogue/${nft} was purchased for ${purchase_price / (10 ** 12)}KSM by ${purchaser}`
+                            let statement = `Kanaria Bird Sale Alert! ${purchase_price / (10 ** 12)}KSM https://kanaria.rmrk.app/catalogue/${nft} was purchased by ${purchaser}`
                             fs.appendFile('logs.log', `${statement}\n`, () => { });
                             console.log(statement)
-                            twit.main(statement)
+                            if (nft.includes("KANBIRD")) {
+                                twit.main(statement)
+                                telegram.post(statement)
+                            }
                         } else {
                             // if version *isn't* 1.0.0 or 2.0.0 (which shouldn't happen) or if threshold isn't met
                             let statement = `RMRK sale minimum not met -- ${version}: ${nft} was purchased for ${purchase_price / (10 ** 12)}KSM by ${purchaser}`
