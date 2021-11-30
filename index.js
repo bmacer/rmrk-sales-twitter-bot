@@ -5,15 +5,46 @@ const require = createRequire(import.meta.url);
 const fs = require('fs');
 const twit = require("./twitter.cjs");
 const telegram = require("./telegram.cjs");
+const webex = require("./webex.cjs");
 
 telegram.post("Running")
+webex.post("Running")
 
 const MINIMUM_V1_PRICE = 0.05
 const MINIMUM_V2_PRICE = 0.01
+const LOGFILE = "listings.txt"
+
 
 const provider = new WsProvider('wss://node.rmrk.app') // Use for production
 // const provider = new WsProvider('ws://127.0.0.1:9944') // Use for dev
 const api = await new ApiPromise({ provider }).isReady;
+
+function getChildrenAndSend(s, q) {
+    const { spawn } = require('child_process');
+
+    let child = spawn(
+        '/home/ec2-user/rmrk2-rust-consolidator/target/release/rmrk2-rust-consolidator',
+        [
+            '--input',
+            '/home/ec2-user/full-results.json',
+            q
+        ]
+    );
+
+    child.on('exit', function (code, signal) {
+        console.log('child process exited with ' +
+            `code ${code} and signal ${signal}`);
+    });
+
+    child.stdout.on('data', (data) => {
+        sendMessage(`${s} ${data.toString()}`);
+        console.log(`${s}\n${data.toString()}`);
+    });
+
+    child.stderr.on('data', (data) => {
+        console.error(`child stderr: \n${data}`);
+    });
+}
 
 function twitter_rmrk_bot() {
     let latest_block = 0;
@@ -33,6 +64,26 @@ function twitter_rmrk_bot() {
         const getBlock = api.rpc.chain.getBlock(header.parentHash).then((block) => {
             // Loop through extrinsics
             block.block.extrinsics.forEach((i) => {
+                if (i.method.section == "system") {
+                    let caller = i.signature.signer
+                    let parts = i.args[0].toHuman().split("::")
+                    if (parts.length > 3) {
+                        let interaction = parts[1]
+                        // if (interaction == "LIST") {
+                        let version = parts[2];
+                        let nft = parts[3]
+                        let price = parts[4]
+                        let link = version == "1.0.0" ? `https://singular.rmrk.app/collectibles/${nft}` : `https://kanaria.rmrk.app/catalogue/${nft}`
+                        let string = `${price / 10 ** 12}KSM ${interaction} ${version} (block ${latest_block}) ${link}\n`
+                        console.log(string)
+                        if (version == "2.0.0" && interaction == "LIST") {
+                            getChildrenAndSend(string, nft)
+                        }
+                        fs.appendFile(LOGFILE, string, () => { });
+                        // }
+                    }
+                }
+
                 // Since BUY only exists properly in "utility" extrinsics, we don't care about anything else
                 if (i.method.section == "utility") {
                     // Initialize our values
