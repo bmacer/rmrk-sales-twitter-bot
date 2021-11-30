@@ -1,6 +1,7 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { createRequire } from "module";
 
+
 const require = createRequire(import.meta.url);
 const fs = require('fs');
 const twit = require("./twitter.cjs");
