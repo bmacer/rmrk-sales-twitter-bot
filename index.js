@@ -56,11 +56,8 @@ function getChildrenAndSend(s, q) {
     });
 
     child.stdout.on('data', (data) => {
-        d = data
-        sendMessage(`${s} ${d.toString()}`);
-        console.log(d);
-        console.log(`${s}\n${data}`);
-        return data;
+        sendMessage(`${s} ${data.toString()}`);
+        console.log(`${s}\n${data.toString()}`);
     });
 
     child.stderr.on('data', (data) => {
