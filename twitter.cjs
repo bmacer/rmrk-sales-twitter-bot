@@ -1,4 +1,5 @@
 require('dotenv').config()
+const { TwitterClient } = require('twitter-api-client')
 
 // This is a simple implementation of the Twitter API.  Presumably, this would function the same for other platforms with their implementation
 // The "tweet" parameter is just a string
