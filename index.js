@@ -13,7 +13,7 @@ webex.post("Running")
 const MINIMUM_V1_PRICE = 0.05
 const MINIMUM_V2_PRICE = 0.01
 const LOGFILE = "listings.txt"
-
+const HOME_DIR = "/home/pi/"
 
 const provider = new WsProvider('wss://node.rmrk.app') // Use for production
 // const provider = new WsProvider('ws://127.0.0.1:9944') // Use for dev
@@ -23,10 +23,10 @@ function getChildrenAndSend(s, q) {
     const { spawn } = require('child_process');
 
     let child = spawn(
-        '/home/ec2-user/rmrk2-rust-consolidator/target/release/rmrk2-rust-consolidator',
+        `${HOME_DIR}rmrk2-rust-consolidator/target/release/rmrk2-rust-consolidator`,
         [
             '--input',
-            '/home/ec2-user/full-results.json',
+            `${HOME_DIR}full-results.json`,
             q
         ]
     );
