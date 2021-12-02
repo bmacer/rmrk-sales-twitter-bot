@@ -55,12 +55,11 @@ function twitter_rmrk_bot() {
             return
         }
         latest_block = header.number - 1;
-
+	fs.writeFile("latest.txt", Date().toString(), () => {});
         // We console.log and write to file just to see the stream of blocks we're receiving (to know we're alive)
         console.log(`block: ${header.number - 1} (${header.parentHash})`);
         fs.appendFile('logs.log', `block: ${header.number - 1} (${header.parentHash})\n`, () => { });
-
-        // Subscribing to blocks
+	// Subscribing to blocks
         const getBlock = api.rpc.chain.getBlock(header.parentHash).then((block) => {
             // Loop through extrinsics
             block.block.extrinsics.forEach((i) => {
