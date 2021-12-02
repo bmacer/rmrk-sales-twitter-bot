@@ -14,6 +14,7 @@ const MINIMUM_V1_PRICE = 0.05
 const MINIMUM_V2_PRICE = 0.01
 const LOGFILE = "listings.txt"
 const HOME_DIR = "/home/pi/"
+const DEBUG_LOGS = "debug.txt"
 
 const provider = new WsProvider('wss://node.rmrk.app') // Use for production
 // const provider = new WsProvider('ws://127.0.0.1:9944') // Use for dev
@@ -58,7 +59,7 @@ function twitter_rmrk_bot() {
 	fs.writeFile("latest.txt", Date().toString(), () => {});
         // We console.log and write to file just to see the stream of blocks we're receiving (to know we're alive)
         console.log(`block: ${header.number - 1} (${header.parentHash})`);
-        fs.appendFile('logs.log', `block: ${header.number - 1} (${header.parentHash})\n`, () => { });
+        fs.appendFile(DEBUG_LOGS, `block: ${header.number - 1} (${header.parentHash})\n`, () => { });
 	// Subscribing to blocks
         const getBlock = api.rpc.chain.getBlock(header.parentHash).then((block) => {
             // Loop through extrinsics
@@ -114,12 +115,12 @@ function twitter_rmrk_bot() {
                         if (version == "1.0.0" && purchase_price >= MINIMUM_V1_PRICE * (10 ** 12)) {
                             // I don't care about 1.0.0 for now.
                             // let statement = `Singular RMRK sale alert! https://singular.rmrk.app/collectibles/${nft} was purchased for ${purchase_price / (10 ** 12)}KSM by ${purchaser}`
-                            // fs.appendFile('logs.log', `${statement}\n`, () => { });
+                            // fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
                             // console.log(statement)
                             // twit.main(statement)
                         } else if (version == "2.0.0" && purchase_price >= MINIMUM_V2_PRICE * (10 ** 12)) {
                             let statement = `Kanaria Bird Sale Alert! ${purchase_price / (10 ** 12)}KSM https://kanaria.rmrk.app/catalogue/${nft} was purchased by ${purchaser}`
-                            fs.appendFile('logs.log', `${statement}\n`, () => { });
+                            fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
                             console.log(statement)
                             if (nft.includes("KANBIRD")) {
                                 twit.main(statement)
@@ -129,7 +130,7 @@ function twitter_rmrk_bot() {
                             // if version *isn't* 1.0.0 or 2.0.0 (which shouldn't happen) or if threshold isn't met
                             let statement = `RMRK sale minimum not met -- ${version}: ${nft} was purchased for ${purchase_price / (10 ** 12)}KSM by ${purchaser}`
                             console.log(statement)
-                            fs.appendFile('logs.log', `${statement}\n`, () => { });
+                            fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
                         }
                     }
                 }
