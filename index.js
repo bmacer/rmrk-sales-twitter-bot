@@ -76,9 +76,9 @@ function twitter_rmrk_bot() {
                         let link = version == "1.0.0" ? `https://singular.rmrk.app/collectibles/${nft}` : `https://kanaria.rmrk.app/catalogue/${nft}`
                         let string = `${price / 10 ** 12}KSM ${interaction} ${version} (block ${latest_block}) ${link}\n`
                         console.log(string)
-			if (!nft.includes("4a4c04c0029f17067c-73DKY")) {
+			if (nft.includes("4a4c04c0029f17067c-73DKY")) {
 				console.log("ok");
-				webex.post("NEW GIRAFFE AVAILABLE");
+				webex.post(`NEW GIRAFFE AVAILABLE: ${link}`);
 			}
                         if (version == "2.0.0" && interaction == "LIST") {
                             // getChildrenAndSend(string, nft)
