@@ -75,6 +75,7 @@ function twitter_rmrk_bot() {
                             let nft = interaction_as_list[3];
                             let price = parseFloat(interaction_as_list[4]);
                             if (nft.includes("4a4c04c0029f17067c-73DKY") || nft.includes("FANARIA") && price > 0) {
+                                let link = `https://singular.rmrk.app/collectibles/${nft}`;
                                 webex.post(`NEW GIRAFFE or FANARIA AVAILABLE: ${link}`);
                             }
                             if (price != 0 && nft.includes("KANBIRD")) {
