@@ -20,3 +20,21 @@ module.exports.main = async function tweet(tweet) {
     })
 
 }
+
+module.exports.tweet_listing = async function tweet_listing(tweet) {
+    const twitterClient = new TwitterClient({
+        apiKey: process.env.TWITTER_API_KEY2,
+        apiSecret: process.env.TWITTER_API_KEY_SECRET2,
+        accessToken: process.env.TWITTER_ACCESS_TOKEN2,
+        accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET2,
+    });
+
+    twitterClient.tweets.statusesUpdate({
+        status: tweet
+    }).then(response => {
+        console.log("Tweeted!  Tweet ID: ", response.id)
+    }).catch(err => {
+        console.error(err)
+    })
+
+}

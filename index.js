@@ -56,35 +56,47 @@ function twitter_rmrk_bot() {
             return
         }
         latest_block = header.number - 1;
-	fs.writeFile("latest.txt", Date().toString(), () => {});
+        fs.writeFile("latest.txt", Date().toString(), () => { });
         // We console.log and write to file just to see the stream of blocks we're receiving (to know we're alive)
         console.log(`block: ${header.number - 1} (${header.parentHash})`);
         fs.appendFile(DEBUG_LOGS, `block: ${header.number - 1} (${header.parentHash})\n`, () => { });
-	// Subscribing to blocks
+        // Subscribing to blocks
         const getBlock = api.rpc.chain.getBlock(header.parentHash).then((block) => {
             // Loop through extrinsics
             block.block.extrinsics.forEach((i) => {
                 if (i.method.section == "system") {
-                    let caller = i.signature.signer
-                    let parts = i.args[0].toHuman().split("::")
-                    if (parts.length > 3) {
-                        let interaction = parts[1]
-                        // if (interaction == "LIST") {
-                        let version = parts[2];
-                        let nft = parts[3]
-                        let price = parts[4]
-                        let link = version == "1.0.0" ? `https://singular.rmrk.app/collectibles/${nft}` : `https://kanaria.rmrk.app/catalogue/${nft}`
-                        let string = `${price / 10 ** 12}KSM ${interaction} ${version} (block ${latest_block}) ${link}\n`
-                        console.log(string)
-			if (nft.includes("4a4c04c0029f17067c-73DKY") || nft.includes("FANARIA")) {
-				console.log("ok");
-				webex.post(`NEW GIRAFFE or FANARIA AVAILABLE: ${link}`);
-			}
-                        if (version == "2.0.0" && interaction == "LIST") {
-                            // getChildrenAndSend(string, nft)
+                    console.log("system");
+                    let interaction_as_list = i.args[0].toHuman().split("::")
+                    if (interaction_as_list.length > 4) {
+                        console.log(interaction_as_list);
+                        let interaction = interaction_as_list[1];
+                        let version = interaction_as_list[2];
+                        if (interaction == "LIST") {
+                            let nft = interaction_as_list[3];
+                            let price = parseFloat(interaction_as_list[4]);
+                            if (nft.includes("4a4c04c0029f17067c-73DKY") || nft.includes("FANARIA") && price > 0) {
+                                webex.post(`NEW GIRAFFE or FANARIA AVAILABLE: ${link}`);
+                            }
+                            if (price != 0 && nft.includes("KANBIRD")) {
+                                // 8949171-e0b9bdcc456a36497a-KANBIRD-KANL-00007935
+                                let l = nft.split("-")[3].charAt(3);
+                                let level = "";
+                                if (l == "S") {
+                                    level = "Super Founder"
+                                } else if (l == "F") {
+                                    level = "Founder"
+                                } else if (l == "R") {
+                                    level = "Rare"
+                                } else if (l == "L") {
+                                    level = "Limited"
+                                }
+
+                                let s = `New Kanaria Listing (${level})! ${price / 1_000_000_000_000.}KSM https://kanaria.rmrk.app/catalogue/${nft}`
+                                console.log(s);
+                                twit.tweet_listing(s);
+                            }
+
                         }
-                        fs.appendFile(LOGFILE, string, () => { });
-                        // }
                     }
                 }
 
