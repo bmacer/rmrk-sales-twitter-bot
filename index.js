@@ -136,7 +136,18 @@ function twitter_rmrk_bot() {
                             // console.log(statement)
                             // twit.main(statement)
                         } else if (version == "2.0.0" && purchase_price >= MINIMUM_V2_PRICE * (10 ** 12)) {
-                            let statement = `Kanaria Bird Sale Alert! ${purchase_price / (10 ** 12)}KSM https://kanaria.rmrk.app/catalogue/${nft} was purchased by ${purchaser}`
+                            let l = nft.split("-")[3].charAt(3);
+                                let level = "";
+                                if (l == "S") {
+                                    level = "Super Founder"
+                                } else if (l == "F") {
+                                    level = "Founder"
+                                } else if (l == "R") {
+                                    level = "Rare"
+                                } else if (l == "L") {
+                                    level = "Limited"
+                                }
+                            let statement = `Kanaria Bird Sale Alert (${level})! ${purchase_price / (10 ** 12)}KSM https://kanaria.rmrk.app/catalogue/${nft} was purchased by ${purchaser}`
                             fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
                             console.log(statement)
                             if (nft.includes("KANBIRD")) {
