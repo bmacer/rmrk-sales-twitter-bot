@@ -74,13 +74,13 @@ function twitter_rmrk_bot() {
                         if (interaction == "LIST") {
                             let nft = interaction_as_list[3];
                             let price = parseFloat(interaction_as_list[4]);
-                            if (nft.includes("FANARIA") && price > 0)) {
+                            if (nft.includes("FANARIA") && price > 0) {
                                 webex.post(`Fanaria listed for ${price} ${link}`);
                             }
                             if (nft.includes("4a4c04c0029f17067c-73DKY") && price > 0) {
                                 let link = `https://singular.rmrk.app/collectibles/${nft}`;
                                 let name = nft.split("-")[3];
-                                let statement = `Longneck listed! ${name} for ${price}: ${link}`;
+                                let statement = `Longneck listed! ${name} for ${price / 1_000_000_000_000.}KSM: ${link}`;
                                 webex.post(statement);
                                 twit.tweet_giraffe(statement);
                             }
