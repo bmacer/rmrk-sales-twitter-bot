@@ -9,7 +9,6 @@ const webex = require("./webex.cjs");
 
 telegram.post("Running")
 webex.post("Running")
-
 const MINIMUM_V1_PRICE = 0.05
 const MINIMUM_V2_PRICE = 0.01
 const LOGFILE = "listings.txt"
