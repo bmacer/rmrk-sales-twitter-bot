@@ -74,9 +74,15 @@ function twitter_rmrk_bot() {
                         if (interaction == "LIST") {
                             let nft = interaction_as_list[3];
                             let price = parseFloat(interaction_as_list[4]);
-                            if (nft.includes("4a4c04c0029f17067c-73DKY") || nft.includes("FANARIA") && price > 0) {
+                            if (nft.includes("FANARIA") && price > 0)) {
+                                webex.post(`Fanaria listed for ${price} ${link}`);
+                            }
+                            if (nft.includes("4a4c04c0029f17067c-73DKY") && price > 0) {
                                 let link = `https://singular.rmrk.app/collectibles/${nft}`;
-                                webex.post(`NEW GIRAFFE or FANARIA AVAILABLE: ${link}`);
+                                let name = nft.split("-")[3];
+                                let statement = `Longneck listed! ${name} for ${price}: ${link}`;
+                                webex.post(statement);
+                                twit.tweet_giraffe(statement);
                             }
                             if (price != 0 && nft.includes("KANBIRD")) {
                                 // 8949171-e0b9bdcc456a36497a-KANBIRD-KANL-00007935
@@ -130,11 +136,13 @@ function twitter_rmrk_bot() {
                     // Only if our assignments were successful should we sent to our publishing api
                     if (nft != "" && purchase_price != 0 && purchaser != "") {
                         if (version == "1.0.0" && purchase_price >= MINIMUM_V1_PRICE * (10 ** 12)) {
-                            // I don't care about 1.0.0 for now.
-                            // let statement = `Singular RMRK sale alert! https://singular.rmrk.app/collectibles/${nft} was purchased for ${purchase_price / (10 ** 12)}KSM by ${purchaser}`
-                            // fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
-                            // console.log(statement)
-                            // twit.main(statement)
+                             if (nft.includes("4a4c04c0029f17067c-73DKY")) {
+                                let link = `https://singular.rmrk.app/collectibles/${nft}`;
+                                let name = nft.split("-")[3];
+                                let statement = `Longneck Sale Alert! ${purchase_price / (10 ** 12)}KSM ${link} was purchased by ${purchaser}`
+                                webex.post(statement);
+                                twit.tweet_giraffe(statement);
+                            }
                         } else if (version == "2.0.0" && purchase_price >= MINIMUM_V2_PRICE * (10 ** 12)) {
                             let l = nft.split("-")[3].charAt(3);
                                 let level = "";
