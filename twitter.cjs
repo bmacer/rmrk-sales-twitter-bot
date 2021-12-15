@@ -38,3 +38,21 @@ module.exports.tweet_listing = async function tweet_listing(tweet) {
     })
 
 }
+
+module.exports.tweet_giraffe = async function tweet_giraffe(tweet) {
+    const twitterClient = new TwitterClient({
+        apiKey: process.env.TWITTER_API_KEY3,
+        apiSecret: process.env.TWITTER_API_KEY_SECRET3,
+        accessToken: process.env.TWITTER_ACCESS_TOKEN3,
+        accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET3,
+    });
+
+    twitterClient.tweets.statusesUpdate({
+        status: tweet
+    }).then(response => {
+        console.log("Tweeted!  Tweet ID: ", response.id)
+    }).catch(err => {
+        console.error(err)
+    })
+
+}
