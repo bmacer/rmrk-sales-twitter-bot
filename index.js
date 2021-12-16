@@ -27,7 +27,7 @@ const DEBUG_LOGS = "debug.txt"
 const provider = new WsProvider('wss://node.rmrk.app') // Use for production
 const api = await new ApiPromise({ provider }).isReady;
 
-let prod = false;
+let prod = true;
 
 // "FRvj8ZJN8nKe9DXyffQbTnnryyWLbfZ8bijfDAo3B869PoL"
 async function get_id(ksm) {
