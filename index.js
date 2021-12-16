@@ -99,7 +99,7 @@ function handle_list(signer, interaction_as_list) {
         } else if (nft.includes("4a4c04c0029f17067c-73DKY")) {
             post = true;
             prestatement = `New Longneck listing!`
-            let statement = `New Longneck listing! ${name} listed for ${price / 0.98}KSM, listed by ${signer} ${url}`
+            let statement = `New Longneck listing! ${name} listed for ${(price / 0.98).toFixed(2)}KSM, listed by ${signer} ${url}`
             if (prod) {
                 twit.tweet_giraffe(statement);
             } else {
@@ -139,7 +139,7 @@ function handle_list(signer, interaction_as_list) {
             let name = nft.split("-")[3];
             prestatement = `New Kanaria Item Listing (${name})`
         }
-        let statement = `${prestatement}${level} listed for ${price / 0.95}KSM by ${signer} https://kanaria.rmrk.app/catalogue/${nft}`
+        let statement = `${prestatement}${level} listed for ${(price / 0.95).toFixed(2)}KSM by ${signer} https://kanaria.rmrk.app/catalogue/${nft}`
         if (bird) {
             if (prod) {
                 console.log("prod listing");
@@ -166,7 +166,7 @@ function handle_buy(signer, nft, purchase_price, version) {
         if (nft.includes("4a4c04c0029f17067c-73DKY")) {
             let name = nft.split("-")[3];
             let link = `https://singular.rmrk.app/collectibles/${nft}`;
-            let statement = `Longneck Sale Alert! ${name} was purchased for ${purchase_price}KSM by ${signer} ${link}`
+            let statement = `Longneck Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
             if (prod) {
                 console.log("prod posting:");
                 console.log(statement);
@@ -179,7 +179,7 @@ function handle_buy(signer, nft, purchase_price, version) {
         } else {
             let name = nft.split("-")[3];
             let link = `https://singular.rmrk.app/collectibles/${nft}`;
-            let statement = `RMRK1.0 Sale Alert! ${name} was purchased for ${purchase_price}KSM by ${signer} ${link}`
+            let statement = `RMRK1.0 Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
             if (prod) {
                 console.log("prod posting:");
                 console.log(statement);
@@ -212,7 +212,7 @@ function handle_buy(signer, nft, purchase_price, version) {
         } else {
             prestatement = "New Kanaria Item Sale"
         }
-        let statement = `Kanaria Bird Sale Alert${level}! ${purchase_price}KSM ${signer} purchased https://kanaria.rmrk.app/catalogue/${nft}`
+        let statement = `Kanaria Bird Sale Alert${level}! ${purchase_price.toFixed(2)}KSM ${signer} purchased https://kanaria.rmrk.app/catalogue/${nft}`
         if (bird) {
             if (prod) {
                 console.log("prod listing");
