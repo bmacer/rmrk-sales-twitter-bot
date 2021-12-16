@@ -1,11 +1,20 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { createRequire } from "module";
 
+import { u8aToHex } from "@polkadot/util";
+import { decodeAddress, Keyring } from "@polkadot/keyring";
+import { execPath } from 'process';
+// import keyring from '@polkadot/ui-keyring';
+
 const require = createRequire(import.meta.url);
 const fs = require('fs');
 const twit = require("./twitter.cjs");
 const telegram = require("./telegram.cjs");
 const webex = require("./webex.cjs");
+
+const handles = {
+    H6eq9zedryfAMVFsgpKYFrnEWBPBgwHEv6p9fJBUs2C81fJ: "@blocksbrandon"
+}
 
 telegram.post("Running")
 webex.post("Running")
@@ -16,39 +25,215 @@ const HOME_DIR = "/home/pi/"
 const DEBUG_LOGS = "debug.txt"
 
 const provider = new WsProvider('wss://node.rmrk.app') // Use for production
-// const provider = new WsProvider('ws://127.0.0.1:9944') // Use for dev
 const api = await new ApiPromise({ provider }).isReady;
 
-function getChildrenAndSend(s, q) {
-    const { spawn } = require('child_process');
+let prod = false;
 
-    let child = spawn(
-        `${HOME_DIR}rmrk2-rust-consolidator/target/release/rmrk2-rust-consolidator`,
-        [
-            '--input',
-            `${HOME_DIR}full-results.json`,
-            q
-        ]
-    );
-
-    child.on('exit', function (code, signal) {
-        console.log('child process exited with ' +
-            `code ${code} and signal ${signal}`);
-    });
-
-    child.stdout.on('data', (data) => {
-        webex.post(`${s} ${data.toString()}`);
-        console.log(`${s}\n${data.toString()}`);
-    });
-
-    child.stderr.on('data', (data) => {
-        console.error(`child stderr: \n${data}`);
-    });
+// "FRvj8ZJN8nKe9DXyffQbTnnryyWLbfZ8bijfDAo3B869PoL"
+async function get_id(ksm) {
+    try {
+        const me = await api.query.identity.identityOf(ksm);
+        const tw = me.toHuman().info.twitter.Raw;
+        return tw;
+    } catch {
+        return "";
+    }
 }
 
-function twitter_rmrk_bot() {
+function handle_mint(signer, interaction_as_list) {
+    console.log("MINT!");
+    console.log(signer);
+    let [_x, _y, version, raw_mint_data] = interaction_as_list;
+    if (version == "1.0.0") {
+        let post = false;
+        let prestatement = "";
+
+        if (signer == "HeyRMRK7L7APFpBrBqeY62dNhFKVGP4JgwQpcog2VTb3RMU") {
+            post = true;
+            prestatement = "RMRK Official MINTING!!!"
+            // TODO handle the raw data
+        } else if (raw_mint_data.includes("FANARIA")) {
+            post = true;
+            prestatement = "New Fanaria MINTING!";
+        } else if (raw_mint_data.includes("4a4c04c0029f17067c-73DKY")) {
+            post = true;
+            prestatement = `New Longneck MINTING!`
+        }
+        let statement = `${prestatement} listed by ${signer}`
+        if (post) {
+            webex.post(statement);
+            console.log(statement);
+        } else {
+            console.log("Minting of a non-captured collection:");
+            console.log(statement);
+        }
+    }
+}
+
+function handle_list(signer, interaction_as_list) {
+    console.log("LIST!");
+    console.log(signer);
+    console.log(interaction_as_list)
+    let [_x, _y, version, nft, price] = interaction_as_list;
+    if (price == 0) {
+        console.log("Delisting");
+        return;
+    }
+    let url = "";
+    price = parseFloat(price) / 1_000_000_000_000.
+    console.log(price);
+
+    if (version == "1.0.0") {
+        url = `https://singular.rmrk.app/collectibles/${nft}`;
+        let post = false;
+        let prestatement = "";
+        let name = nft.split("-")[3];
+
+        if (signer == "HeyRMRK7L7APFpBrBqeY62dNhFKVGP4JgwQpcog2VTb3RMU") {
+            post = true;
+            prestatement = "RMRK Official!!!"
+            // webex.post(`RMRK official: ${price} ${link}`)
+        } else if (nft.includes("FANARIA")) {
+            post = true;
+            prestatement = "New Fanaria listing!";
+        } else if (nft.includes("4a4c04c0029f17067c-73DKY")) {
+            post = true;
+            prestatement = `New Longneck listing!`
+            let statement = `New Longneck listing! ${name} listed for ${price / 0.98}KSM, listed by ${signer} ${url}`
+            if (prod) {
+                twit.tweet_giraffe(statement);
+            } else {
+                webex.post("non-prod:");
+                webex.post(statement);
+                console.log(statement);
+            }
+        }
+        let statement = `${prestatement} ${name} listed for ${price}KSM by ${signer} ${url}`
+        if (post) {
+            webex.post(statement);
+        } else {
+            console.log("Listing of a non-captured collection:");
+            console.log(statement);
+        }
+    }
+    if (version == "2.0.0") {
+        url = `https://kanaria.rmrk.app/catalogue/${nft}`;
+        // is it bird?
+        let prestatement = "";
+        let level = "";
+        let bird = false;
+        if (nft.includes("KANBIRD")) {
+            bird = true;
+            let l = nft.split("-")[3].charAt(3);
+            if (l == "S") {
+                level = " (Super Founder)"
+            } else if (l == "F") {
+                level = " (Founder)"
+            } else if (l == "R") {
+                level = " (Rare)"
+            } else if (l == "L") {
+                level = " (Limited)"
+            }
+            prestatement = "New Kanaria Listing";
+        } else {
+            let name = nft.split("-")[3];
+            prestatement = `New Kanaria Item Listing (${name})`
+        }
+        let statement = `${prestatement}${level} listed for ${price / 0.95}KSM by ${signer} https://kanaria.rmrk.app/catalogue/${nft}`
+        if (bird) {
+            if (prod) {
+                console.log("prod listing");
+                console.log(statement);
+                twit.tweet_listing(statement);
+            } else {
+                console.log("dev listing");
+                console.log(statement);
+                webex.post(statement);
+            }
+        } else {
+            console.log("no bird");
+            console.log(statement);
+            // webex.post(statement);
+        }
+    }
+}
+
+function handle_buy(signer, nft, purchase_price, version) {
+    console.log("BUY!");
+    console.log(signer, nft, purchase_price, version);
+
+    if (version == "1.0.0") {
+        if (nft.includes("4a4c04c0029f17067c-73DKY")) {
+            let name = nft.split("-")[3];
+            let link = `https://singular.rmrk.app/collectibles/${nft}`;
+            let statement = `Longneck Sale Alert! ${name} was purchased for ${purchase_price}KSM by ${signer} ${link}`
+            if (prod) {
+                console.log("prod posting:");
+                console.log(statement);
+                twit.tweet_giraffe(statement);
+            } else {
+                console.log("dev posting:");
+                console.log(statement);
+                webex.post(statement);
+            }
+        } else {
+            let name = nft.split("-")[3];
+            let link = `https://singular.rmrk.app/collectibles/${nft}`;
+            let statement = `RMRK1.0 Sale Alert! ${name} was purchased for ${purchase_price}KSM by ${signer} ${link}`
+            if (prod) {
+                console.log("prod posting:");
+                console.log(statement);
+                // twit.tweet_giraffe(statement);
+            } else {
+                console.log("dev posting:");
+                console.log(statement);
+                webex.post(statement);
+            }
+        }
+    }
+    if (version == "2.0.0") {
+        // let url = `https://kanaria.rmrk.app/catalogue/${nft}`;
+        let prestatement = "";
+        let level = "";
+        let bird = false;
+        if (nft.includes("KANBIRD")) {
+            bird = true;
+            let l = nft.split("-")[3].charAt(3);
+            if (l == "S") {
+                level = " (Super Founder)"
+            } else if (l == "F") {
+                level = " (Founder)"
+            } else if (l == "R") {
+                level = " (Rare)"
+            } else if (l == "L") {
+                level = " (Limited)"
+            }
+            prestatement = "Kanaria Bird Sale Alert";
+        } else {
+            prestatement = "New Kanaria Item Sale"
+        }
+        let statement = `Kanaria Bird Sale Alert${level}! ${purchase_price}KSM ${signer} purchased https://kanaria.rmrk.app/catalogue/${nft}`
+        if (bird) {
+            if (prod) {
+                console.log("prod listing");
+                console.log(statement);
+                twit.main(statement);
+            } else {
+                console.log("dev listing");
+                console.log(statement);
+                webex.post(statement);
+            }
+        } else {
+            console.log("no bird");
+            console.log(statement);
+            // webex.post(statement);
+        }
+    }
+}
+
+async function twitter_rmrk_bot() {
     let latest_block = 0;
-    api.rpc.chain.subscribeNewHeads((header) => {
+    api.rpc.chain.subscribeNewHeads(async (header) => {
 
         // Sometimes we get fed the same block twice, let's not eat it.
         if (header.number - 1 <= latest_block) {
@@ -60,60 +245,39 @@ function twitter_rmrk_bot() {
         console.log(`block: ${header.number - 1} (${header.parentHash})`);
         fs.appendFile(DEBUG_LOGS, `block: ${header.number - 1} (${header.parentHash})\n`, () => { });
         // Subscribing to blocks
-        const getBlock = api.rpc.chain.getBlock(header.parentHash).then((block) => {
+        const getBlock = api.rpc.chain.getBlock(header.parentHash).then(async (block) => {
             // Loop through extrinsics
-            block.block.extrinsics.forEach((i) => {
+            block.block.extrinsics.forEach(async (i) => {
+                let signer = ""
+                if (i.signer) {
+                    signer = i.signer.toString();
+                    let twitter_handle = await get_id(signer);
+                    if (twitter_handle) {
+                        signer = twitter_handle;
+                    }
+                }
                 if (i.method.section == "system") {
                     console.log("system");
                     let interaction_as_list = i.args[0].toHuman().split("::")
-                    if (interaction_as_list.length > 4) {
-                        console.log(interaction_as_list);
+                    if (interaction_as_list.length >= 3) {
+                        console.log(i.args[0].toHuman());
                         let interaction = interaction_as_list[1];
-                        let version = interaction_as_list[2];
+
+                        if (interaction == "MINTNFT") {
+                            handle_mint(signer, interaction_as_list)
+                        }
+
                         if (interaction == "LIST") {
-                            let nft = interaction_as_list[3];
-                            let price = parseFloat(interaction_as_list[4]);
-                            if (nft.includes("FANARIA") && price > 0) {
-                                webex.post(`Fanaria listed for ${price} ${link}`);
-                            }
-                            if (nft.includes("4a4c04c0029f17067c-73DKY") && price > 0) {
-                                let link = `https://singular.rmrk.app/collectibles/${nft}`;
-                                let name = nft.split("-")[3];
-                                let statement = `Longneck listed! ${name} for ${price / 1_000_000_000_000.}KSM: ${link}`;
-                                webex.post(statement);
-                                twit.tweet_giraffe(statement);
-                            }
-                            if (price != 0 && nft.includes("KANBIRD")) {
-                                // 8949171-e0b9bdcc456a36497a-KANBIRD-KANL-00007935
-                                let l = nft.split("-")[3].charAt(3);
-                                let level = "";
-                                if (l == "S") {
-                                    level = "Super Founder"
-                                } else if (l == "F") {
-                                    level = "Founder"
-                                } else if (l == "R") {
-                                    level = "Rare"
-                                } else if (l == "L") {
-                                    level = "Limited"
-                                }
-
-                                let s = `New Kanaria Listing (${level})! ${price / 1_000_000_000_000.}KSM https://kanaria.rmrk.app/catalogue/${nft}`
-                                console.log(s);
-                                twit.tweet_listing(s);
-                            }
-
+                            handle_list(signer, interaction_as_list);
                         }
                     }
                 }
 
-                // Since BUY only exists properly in "utility" extrinsics, we don't care about anything else
                 if (i.method.section == "utility") {
-                    // Initialize our values
                     let nft = ""; // This will be the ID of the nft
                     let purchase_price = 0; // This will be the total amount transferred in the batch
                     let purchaser = i.signer; // This is the caller of the batch
                     let version = ""; // This is the RMRK version (1.0.0 or 2.0.0)
-
                     // Looping through each element in the batch
                     i.method.args[0].forEach((el) => {
                         // If the element is a transfer, we get the balance transferred
@@ -134,39 +298,8 @@ function twitter_rmrk_bot() {
                     })
                     // Only if our assignments were successful should we sent to our publishing api
                     if (nft != "" && purchase_price != 0 && purchaser != "") {
-                        if (version == "1.0.0" && purchase_price >= MINIMUM_V1_PRICE * (10 ** 12)) {
-                             if (nft.includes("4a4c04c0029f17067c-73DKY")) {
-                                let link = `https://singular.rmrk.app/collectibles/${nft}`;
-                                let name = nft.split("-")[3];
-                                let statement = `Longneck Sale Alert! ${purchase_price / (10 ** 12)}KSM ${link} was purchased by ${purchaser}`
-                                webex.post(statement);
-                                twit.tweet_giraffe(statement);
-                            }
-                        } else if (version == "2.0.0" && purchase_price >= MINIMUM_V2_PRICE * (10 ** 12)) {
-                            let l = nft.split("-")[3].charAt(3);
-                                let level = "";
-                                if (l == "S") {
-                                    level = "Super Founder"
-                                } else if (l == "F") {
-                                    level = "Founder"
-                                } else if (l == "R") {
-                                    level = "Rare"
-                                } else if (l == "L") {
-                                    level = "Limited"
-                                }
-                            let statement = `Kanaria Bird Sale Alert (${level})! ${purchase_price / (10 ** 12)}KSM https://kanaria.rmrk.app/catalogue/${nft} was purchased by ${purchaser}`
-                            fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
-                            console.log(statement)
-                            if (nft.includes("KANBIRD")) {
-                                twit.main(statement)
-                                telegram.post(statement)
-                            }
-                        } else {
-                            // if version *isn't* 1.0.0 or 2.0.0 (which shouldn't happen) or if threshold isn't met
-                            let statement = `RMRK sale minimum not met -- ${version}: ${nft} was purchased for ${purchase_price / (10 ** 12)}KSM by ${purchaser}`
-                            console.log(statement)
-                            fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
-                        }
+                        let price = parseFloat(purchase_price) / 1_000_000_000_000.
+                        handle_buy(signer, nft, price, version);
                     }
                 }
             });
