@@ -32,7 +32,7 @@ const DEBUG_LOGS = "unknown.txt"
 const provider = new WsProvider('wss://node.rmrk.app') // Use for production
 const api = await new ApiPromise({ provider }).isReady;
 
-let prod = false;
+let prod = true;
 
 // "FRvj8ZJN8nKe9DXyffQbTnnryyWLbfZ8bijfDAo3B869PoL"
 async function get_id(ksm) {
@@ -73,7 +73,7 @@ function handle_mint(signer, interaction_as_list) {
         } else {
             console.log("Minting of a non-captured collection:");
             console.log(statement);
-            fs.appendFile(DEBUG_LOGS, `${statement}\n`);
+            fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
         }
     }
 }
@@ -126,7 +126,7 @@ function handle_list(signer, interaction_as_list) {
         } else {
             console.log("Listing of a non-captured collection:");
             console.log(statement);
-            fs.appendFile(DEBUG_LOGS, `${statement}\n`);
+            fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
         }
     }
     if (version == "2.0.0") {
@@ -196,6 +196,7 @@ function handle_buy(signer, nft, purchase_price, version) {
             if (prod) {
                 console.log("prod posting:");
                 console.log(statement);
+                fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
                 // twit.tweet_giraffe(statement);
             } else {
                 console.log("dev posting:");
@@ -256,7 +257,7 @@ async function twitter_rmrk_bot() {
         fs.writeFile("latest.txt", Date().toString(), () => { });
         // We console.log and write to file just to see the stream of blocks we're receiving (to know we're alive)
         console.log(`block: ${header.number - 1} (${header.parentHash})`);
-        fs.appendFile(DEBUG_LOGS, `block: ${header.number - 1} (${header.parentHash})\n`, () => { });
+        // fs.appendFile(DEBUG_LOGS, `block: ${header.number - 1} (${header.parentHash})\n`, () => { });
         // Subscribing to blocks
         const getBlock = api.rpc.chain.getBlock(header.parentHash).then(async (block) => {
             // Loop through extrinsics
