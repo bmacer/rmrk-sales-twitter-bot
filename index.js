@@ -12,8 +12,13 @@ const twit = require("./twitter.cjs");
 const telegram = require("./telegram.cjs");
 const webex = require("./webex.cjs");
 
-const handles = {
-    H6eq9zedryfAMVFsgpKYFrnEWBPBgwHEv6p9fJBUs2C81fJ: "@blocksbrandon"
+function get_collection_url_from_raw_mint_data(data) {
+    console.log(data);
+    let decoded_mint_data = decodeURIComponent(data);
+    console.log(decoded_mint_data);
+    let json = JSON.parse(decoded_mint_data);
+    let url = `https://singular.rmrk.app/collections/${encodeURIComponent(json.collection)}`;
+    return url;
 }
 
 telegram.post("Running")
@@ -22,12 +27,12 @@ const MINIMUM_V1_PRICE = 0.05
 const MINIMUM_V2_PRICE = 0.01
 const LOGFILE = "listings.txt"
 const HOME_DIR = "/home/pi/"
-const DEBUG_LOGS = "debug.txt"
+const DEBUG_LOGS = "unknown.txt"
 
 const provider = new WsProvider('wss://node.rmrk.app') // Use for production
 const api = await new ApiPromise({ provider }).isReady;
 
-let prod = true;
+let prod = false;
 
 // "FRvj8ZJN8nKe9DXyffQbTnnryyWLbfZ8bijfDAo3B869PoL"
 async function get_id(ksm) {
@@ -42,12 +47,11 @@ async function get_id(ksm) {
 
 function handle_mint(signer, interaction_as_list) {
     console.log("MINT!");
-    console.log(signer);
     let [_x, _y, version, raw_mint_data] = interaction_as_list;
     if (version == "1.0.0") {
         let post = false;
         let prestatement = "";
-
+        let collection_url = get_collection_url_from_raw_mint_data(raw_mint_data);
         if (signer == "HeyRMRK7L7APFpBrBqeY62dNhFKVGP4JgwQpcog2VTb3RMU") {
             post = true;
             prestatement = "RMRK Official MINTING!!!"
@@ -62,13 +66,14 @@ function handle_mint(signer, interaction_as_list) {
             post = true;
             prestatement = `New Longneck MINTING!`
         }
-        let statement = `${prestatement} listed by ${signer}`
+        let statement = `${prestatement} minted by ${signer}.  collection: ${collection_url}`;
         if (post) {
             webex.post(statement);
             console.log(statement);
         } else {
             console.log("Minting of a non-captured collection:");
             console.log(statement);
+            fs.appendFile(DEBUG_LOGS, `${statement}\n`);
         }
     }
 }
@@ -121,6 +126,7 @@ function handle_list(signer, interaction_as_list) {
         } else {
             console.log("Listing of a non-captured collection:");
             console.log(statement);
+            fs.appendFile(DEBUG_LOGS, `${statement}\n`);
         }
     }
     if (version == "2.0.0") {
@@ -141,7 +147,7 @@ function handle_list(signer, interaction_as_list) {
             } else if (l == "L") {
                 level = " (Limited)"
             }
-            prestatement = "New Kanaria Listing";
+            prestatement = "New Kanaria";
         } else {
             let name = nft.split("-")[3];
             prestatement = `New Kanaria Item Listing (${name})`
@@ -219,7 +225,7 @@ function handle_buy(signer, nft, purchase_price, version) {
         } else {
             prestatement = "New Kanaria Item Sale"
         }
-        let statement = `Kanaria Bird Sale Alert${level}! ${purchase_price.toFixed(2)}KSM ${signer} purchased https://kanaria.rmrk.app/catalogue/${nft}`
+        let statement = `${prestatement}${level}! ${purchase_price.toFixed(2)}KSM ${signer} purchased https://kanaria.rmrk.app/catalogue/${nft}`
         if (bird) {
             if (prod) {
                 console.log("prod listing");
