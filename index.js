@@ -52,6 +52,9 @@ function handle_mint(signer, interaction_as_list) {
             post = true;
             prestatement = "RMRK Official MINTING!!!"
             // TODO handle the raw data
+        } else if (signer == "Cp9r5r9StL5VWQpqKXZiiWJQyPsehPjnkcdA1h2ewrSCbwo") {
+            post = true;
+            prestatement = "Donkey!"
         } else if (raw_mint_data.includes("FANARIA")) {
             post = true;
             prestatement = "New Fanaria MINTING!";
@@ -93,7 +96,11 @@ function handle_list(signer, interaction_as_list) {
             post = true;
             prestatement = "RMRK Official!!!"
             // webex.post(`RMRK official: ${price} ${link}`)
-        } else if (nft.includes("FANARIA")) {
+        } else if (signer == "Cp9r5r9StL5VWQpqKXZiiWJQyPsehPjnkcdA1h2ewrSCbwo") {
+            post = true;
+            prestatement = "Donkey listed";
+        }
+        else if (nft.includes("FANARIA")) {
             post = true;
             prestatement = "New Fanaria listing!";
         } else if (nft.includes("4a4c04c0029f17067c-73DKY")) {
