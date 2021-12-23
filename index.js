@@ -157,7 +157,8 @@ function handle_list(signer, interaction_as_list) {
             if (prod) {
                 console.log("prod listing");
                 console.log(statement);
-                twit.tweet_listing(statement);
+                webex.post(statement);
+                setTimeout(function () { twit.tweet_listing(statement); }, 60000);
             } else {
                 console.log("dev listing");
                 console.log(statement);
