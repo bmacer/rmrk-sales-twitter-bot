@@ -32,7 +32,7 @@ const DEBUG_LOGS = "unknown.txt"
 const provider = new WsProvider('wss://node.rmrk.app') // Use for production
 const api = await new ApiPromise({ provider }).isReady;
 
-let prod = true;
+let prod = false;
 
 // "FRvj8ZJN8nKe9DXyffQbTnnryyWLbfZ8bijfDAo3B869PoL"
 async function get_id(ksm) {
@@ -152,7 +152,7 @@ function handle_list(signer, interaction_as_list) {
             let name = nft.split("-")[3];
             prestatement = `New Kanaria Item Listing (${name})`
         }
-        let statement = `${prestatement}${level} listed for ${(price / 0.95).toFixed(2)}KSM by ${signer} https://kanaria.rmrk.app/catalogue/${nft}`
+        let statement = `${prestatement}${level} listed\n${(price / 0.95).toFixed(2)}KSM\nby ${signer} \nhttps://kanaria.rmrk.app/catalogue/${nft}\n`
         if (bird) {
             if (prod) {
                 console.log("prod listing");
@@ -161,12 +161,16 @@ function handle_list(signer, interaction_as_list) {
             } else {
                 console.log("dev listing");
                 console.log(statement);
-                webex.post(statement);
+                if (price < 26) {
+                    webex.post(statement);
+                }
             }
         } else {
             console.log("no bird");
             console.log(statement);
-            // webex.post(statement);
+            if (price < 2) {
+                webex.post(statement);
+            }
         }
     }
 }
@@ -308,12 +312,16 @@ async function twitter_rmrk_bot() {
                                 nft = interaction_as_list[3]
                                 version = interaction_as_list[2]
                             }
+                            if (interaction_as_list[1] == "LIST") {
+                                handle_list(signer, interaction_as_list);
+                            }
                         }
+
                     })
                     // Only if our assignments were successful should we sent to our publishing api
                     if (nft != "" && purchase_price != 0 && purchaser != "") {
                         let price = parseFloat(purchase_price) / 1_000_000_000_000.
-                        handle_buy(signer, nft, price, version);
+                        //handle_buy(signer, nft, price, version);
                     }
                 }
             });

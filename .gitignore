@@ -5,3 +5,5 @@ node_modules
 logs.log
 package-lock.json
 yarn.lock
+latest.txt
+unknown.txt
