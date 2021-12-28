@@ -12,6 +12,31 @@ const twit = require("./twitter.cjs");
 const telegram = require("./telegram.cjs");
 const webex = require("./webex.cjs");
 
+const open = require('open');
+
+const dont_want_to_see_list = [
+    "BUFFCHIMP",
+    "3cbd5d669b87e6bb23-OC4E7",
+    "24d6d7cd9a97d46d3e-SUB-CL",
+    "8476db81626f94356a-E7Y1R",
+]
+
+async function open_url(url) {
+    let blacklisted = false;
+    for (let bad in dont_want_to_see_list) {
+        if (url.includes(dont_want_to_see_list[bad])) {
+            console.log(bad);
+            console.log(url);
+            console.log(`blacklisted::: ${url}`);
+            blacklisted = true;
+        }
+    }
+    if (!blacklisted && !prod) {
+        await open(url);
+        telegram.post(url);
+    }
+}
+
 function get_collection_url_from_raw_mint_data(data) {
     console.log(data);
     let decoded_mint_data = decodeURIComponent(data);
@@ -32,7 +57,7 @@ const DEBUG_LOGS = "unknown.txt"
 const provider = new WsProvider('wss://node.rmrk.app') // Use for production
 const api = await new ApiPromise({ provider }).isReady;
 
-let prod = false;
+let prod = true;
 
 // "FRvj8ZJN8nKe9DXyffQbTnnryyWLbfZ8bijfDAo3B869PoL"
 async function get_id(ksm) {
@@ -70,14 +95,16 @@ function handle_mint(signer, interaction_as_list) {
             prestatement = `New Kusama King MINTING!`
         }
         //  2644199cf3652aaa78-KK01
-        let statement = `${prestatement} minted by ${signer}.  collection: ${collection_url}`;
+        let statement = `${prestatement} \nminted by ${signer}.  \ncollection: \n${collection_url}`;
         if (post) {
             webex.post(statement);
             console.log(statement);
+            open_url(collection_url);
         } else {
             console.log("Minting of a non-captured collection:");
             console.log(statement);
             fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
+            open_url(collection_url);
         }
     }
 }
@@ -97,6 +124,7 @@ function handle_list(signer, interaction_as_list) {
 
     if (version == "1.0.0") {
         url = `https://singular.rmrk.app/collectibles/${nft}`;
+        open_url(url);
         let post = false;
         let prestatement = "";
         let name = nft.split("-")[3];
@@ -115,7 +143,7 @@ function handle_list(signer, interaction_as_list) {
         } else if (nft.includes("4a4c04c0029f17067c-73DKY")) {
             post = true;
             prestatement = `New Longneck listing!`
-            let statement = `New Longneck listing! ${name} listed for ${(price / 0.98).toFixed(2)}KSM, listed by ${signer} ${url}`
+            let statement = `New Longneck listing! ${name} listed for ${(price / 0.98).toFixed(2)}KSM, listed by ${signer} \n${url}`
             if (prod) {
                 twit.tweet_giraffe(statement);
             } else {
@@ -126,17 +154,17 @@ function handle_list(signer, interaction_as_list) {
         } else if (nft.includes("2644199cf3652aaa78-KK01")) {
             post = true;
             prestatement = `New Kusama King listing!`
-            let statement = `New Kusama King listing! ${name} listed for ${(price / 0.98).toFixed(2)}KSM, listed by ${signer} ${url}`
+            let statement = `New Kusama King listing! ${name} listed for ${(price / 0.98).toFixed(2)}KSM, listed by ${signer} \n${url}`
             if (prod) {
                 twit.kk(statement);
             } else {
                 webex.post("non-prod:");
                 webex.post(statement);
                 console.log(statement);
-                twit.kk(statement); // TODO delete this
+                // twit.kk(statement); // TODO delete this
             }
         }
-        let statement = `${prestatement} ${name} listed for ${price}KSM by ${signer} ${url}`
+        let statement = `${prestatement} ${name} listed for ${price}KSM by ${signer} \n${url}`
         if (post) {
             webex.post(statement);
         } else {
@@ -147,6 +175,9 @@ function handle_list(signer, interaction_as_list) {
     }
     if (version == "2.0.0") {
         url = `https://kanaria.rmrk.app/catalogue/${nft}`;
+        if (!prod) {
+            open_url(url);
+        }
         // is it bird?
         let prestatement = "";
         let level = "";
@@ -222,7 +253,7 @@ function handle_buy(signer, nft, purchase_price, version) {
                 console.log("dev posting:");
                 console.log(statement);
                 webex.post(statement);
-                twit.kk(statement); //TODO delete this
+                // twit.kk(statement); //TODO delete this
             }
         }
         //  2644199cf3652aaa78-KK01
@@ -293,7 +324,8 @@ async function twitter_rmrk_bot() {
         latest_block = header.number - 1;
         fs.writeFile("latest.txt", Date().toString(), () => { });
         // We console.log and write to file just to see the stream of blocks we're receiving (to know we're alive)
-        console.log(`block: ${header.number - 1} (${header.parentHash})`);
+        console.log(`block: ${header.number - 1}`);
+        // console.log(`block: ${header.number - 1} (${header.parentHash})`);
         // fs.appendFile(DEBUG_LOGS, `block: ${header.number - 1} (${header.parentHash})\n`, () => { });
         // Subscribing to blocks
         const getBlock = api.rpc.chain.getBlock(header.parentHash).then(async (block) => {
@@ -330,6 +362,7 @@ async function twitter_rmrk_bot() {
                     let purchaser = i.signer; // This is the caller of the batch
                     let version = ""; // This is the RMRK version (1.0.0 or 2.0.0)
                     // Looping through each element in the batch
+                    let done = false;
                     i.method.args[0].forEach((el) => {
                         // If the element is a transfer, we get the balance transferred
                         if (el.method == "transfer") {
@@ -346,7 +379,18 @@ async function twitter_rmrk_bot() {
                                 version = interaction_as_list[2]
                             }
                             if (interaction_as_list[1] == "LIST") {
-                                handle_list(signer, interaction_as_list);
+                                console.log("multiple listings");
+                                if (!done) {
+                                    handle_list(signer, interaction_as_list);
+                                    done = true;
+                                }
+                            }
+                            if (interaction_as_list[1] == "MINT" || interaction_as_list[1] == "MINTNFT") {
+                                console.log("multiple mintings");
+                                if (!done) {
+                                    handle_mint(signer, interaction_as_list);
+                                    done = true;
+                                }
                             }
                         }
 
