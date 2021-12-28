@@ -398,7 +398,7 @@ async function twitter_rmrk_bot() {
                     // Only if our assignments were successful should we sent to our publishing api
                     if (nft != "" && purchase_price != 0 && purchaser != "") {
                         let price = parseFloat(purchase_price) / 1_000_000_000_000.
-                        //handle_buy(signer, nft, price, version);
+                        handle_buy(signer, nft, price, version);
                     }
                 }
             });
