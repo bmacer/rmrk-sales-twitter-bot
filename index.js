@@ -168,7 +168,7 @@ function handle_list(signer, interaction_as_list) {
             prestatement = `New Second Rate Clown listing!`
             let statement = `New Second Rate Clown listing! ${name} listed for ${(price / 0.98).toFixed(2)}KSM, listed by ${signer} \n${url}`
             if (prod) {
-                setTimeout(function () { twit.clown(statement); }, 300000);
+                setTimeout(function () { twit.clowns(statement); }, 300000);
             } else {
                 webex.post("non-prod:");
                 webex.post(statement);
