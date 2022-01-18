@@ -1,6 +1,24 @@
 require('dotenv').config()
 const { TwitterClient } = require('twitter-api-client')
 
+module.exports.alien = async function alien(tweet) {
+    const twitterClient = new TwitterClient({
+        apiKey: process.env.API_ALIEN,
+        apiSecret: process.env.API_SECRET_ALIEN,
+        accessToken: process.env.TOKEN_ALIEN,
+        accessTokenSecret: process.env.TOKEN_SECRET_ALIEN,
+    });
+
+    twitterClient.tweets.statusesUpdate({
+        status: tweet
+    }).then(response => {
+        console.log("Tweeted!  Tweet ID: ", response.id)
+    }).catch(err => {
+        console.error(err)
+    })
+
+}
+
 module.exports.clowns = async function clowns(tweet) {
     const twitterClient = new TwitterClient({
         apiKey: process.env.API_CLOWNS,
