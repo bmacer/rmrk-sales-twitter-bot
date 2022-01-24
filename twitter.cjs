@@ -1,6 +1,24 @@
 require('dotenv').config()
 const { TwitterClient } = require('twitter-api-client')
 
+module.exports.shiba = async function shiba(tweet) {
+    const twitterClient = new TwitterClient({
+        apiKey: process.env.API_SHIBA,
+        apiSecret: process.env.API_SECRET_SHIBA,
+        accessToken: process.env.TOKEN_SHIBA,
+        accessTokenSecret: process.env.TOKEN_SECRET_SHIBA,
+    });
+
+    twitterClient.tweets.statusesUpdate({
+        status: tweet
+    }).then(response => {
+        console.log("Tweeted!  Tweet ID: ", response.id)
+    }).catch(err => {
+        console.error(err)
+    })
+
+}
+
 module.exports.alien = async function alien(tweet) {
     const twitterClient = new TwitterClient({
         apiKey: process.env.API_ALIEN,
