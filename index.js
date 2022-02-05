@@ -55,7 +55,8 @@ const LOGFILE = "listings.txt"
 const HOME_DIR = "/home/pi/"
 const DEBUG_LOGS = "unknown.txt"
 
-const provider = new WsProvider('wss://node.rmrk.app') // Use for production
+// const provider = new WsProvider('wss://node.rmrk.app') // Use for production
+const provider = new WsProvider('wss://kusama-rpc.polkadot.io') // Use for production
 const api = await new ApiPromise({ provider }).isReady;
 
 let prod = true;
@@ -115,7 +116,7 @@ function handle_list(signer, interaction_as_list) {
     console.log(signer);
     console.log(interaction_as_list)
     let [_x, _y, version, nft, price] = interaction_as_list;
-    if (price == 0) {
+    if (price == 0 && !nft.includes("4a4c04c0029f17067c-73DKY")) {
         console.log("Delisting");
         return;
     }
@@ -144,7 +145,12 @@ function handle_list(signer, interaction_as_list) {
         } else if (nft.includes("4a4c04c0029f17067c-73DKY")) {
             post = true;
             prestatement = `New Longneck listing!`
-            let statement = `New Longneck listing! ${name} listed for ${(price / 0.98).toFixed(2)}KSM, listed by ${signer} \n${url}`
+            let statement = "";
+            if (price == 0) {
+                statement = `New Longneck DELISTED! ${signer} is a true Longneck HODLER! \n${url}`
+            } else {
+                statement = `New Longneck listing! ${name} listed for ${(price / 0.98).toFixed(2)}KSM, listed by ${signer} \n${url}`
+            }
             if (prod) {
                 twit.tweet_giraffe(statement);
             } else {
