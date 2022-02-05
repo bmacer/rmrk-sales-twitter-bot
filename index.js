@@ -46,6 +46,7 @@ function get_collection_url_from_raw_mint_data(data) {
     return url;
 }
 
+// twit.substra("testing");
 telegram.post("Running")
 webex.post("Running")
 const MINIMUM_V1_PRICE = 0.05
@@ -175,7 +176,19 @@ function handle_list(signer, interaction_as_list) {
                 webex.post("non-prod:");
                 webex.post(statement);
                 console.log(statement);
-            }            
+            } // 
+        } else if (nft.includes("b45071647155359951-SUBSTRA")) {
+            post = true;
+            prestatement = `New Substranaut listing!`
+            let statement = `New Substranaut listing! ${name} listed for ${(price / 0.98).toFixed(2)}KSM, listed by ${signer} \n${url}`
+            if (prod) {
+                setTimeout(function () { twit.substra(statement); }, 300000);
+            } else {
+                webex.post("non-prod:");
+                webex.post(statement);
+                console.log(statement);
+                // twit.kk(statement); // TODO delete this
+            }
         } else if (nft.includes("2644199cf3652aaa78-KK01")) {
             post = true;
             prestatement = `New Kusama King listing!`
@@ -318,6 +331,22 @@ function handle_buy(signer, nft, purchase_price, version) {
                 console.log(statement);
                 webex.post(statement);
                 // twit.kk(statement); //TODO delete this
+            }
+            // b45071647155359951-SUBSTRA
+        } else if (nft.includes("b45071647155359951-SUBSTRA")) {
+            let name = nft.split("-")[3];
+            let link = `https://singular.rmrk.app/collectibles/${nft}`;
+            let statement = `Substranaut Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
+            if (prod) {
+                console.log("prod posting:");
+                console.log(statement);
+                webex.post(statement);
+                setTimeout(function () { twit.substra(statement); }, 300000);
+
+            } else {
+                console.log("dev posting:");
+                console.log(statement);
+                webex.post(statement);
             }
         } else if (nft.includes("06ea5e9291a7e86837-CLOWN")) {
             let name = nft.split("-")[3];
