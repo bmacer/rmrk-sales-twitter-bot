@@ -15,9 +15,8 @@ module.exports.post = async function post(message) {
                 Authorization: `Bearer ${WEBEX_API_KEY}`
             }
         };
-        console.log(config)
         const res = await axios.post('https://webexapis.com/v1/messages', data, config);
     } catch (err) {
-        console.error(err);
+        console.error("webex err");
     }
 }
