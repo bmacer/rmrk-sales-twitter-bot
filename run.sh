@@ -1,7 +1,7 @@
 #/usr/bin/sh
 source /home/pi/.bashrc
 
-until node index.js; do
+until node /home/pi/rmrk/rmrk-sales-twitter-bot/index.js; do
     echo "running, respawning..." >&2
     sleep 1
 done
