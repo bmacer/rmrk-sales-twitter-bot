@@ -18,67 +18,9 @@ const webex = require("./webex.cjs");
 var sqlite3 = require('sqlite3').verbose();
 var file = "./db.db";
 
-
-// DELETE FROM listings WHERE id=(SELECT id FROM listings WHERE nft="8949171-e0b9bdcc456a36497a-KANBIRD-KANL-00008110");
-function delete_from_sql(nft) {
-    var db = new sqlite3.Database(file);
-
-    // insert one row into the langs table
-    db.run(`DELETE FROM listings WHERE id=(SELECT id FROM listings WHERE nft=(?));`,
-        [nft], function (err) {
-            if (err) {
-                console.log("errrrr");
-                return console.log(err.message);
-            }
-            // get the last insert id
-            console.log(`A row has been deleted`);
-        });
-    db.close();
-}
-
-// delete_from_sql("11147523-c6017764e7a1d03b5e-RMRKOLDCOINS-OLD_COIN_2203016-0000000000000011");
-
-function update_latest_block_in_sql(block) {
-    var db = new sqlite3.Database(file);
-    db.run(`UPDATE latest_block SET number=(?)`,
-        [block], function (err) {
-            if (err) {
-                return console.log(err.message);
-            }
-        });
-    db.close();
-}
-
-
-function insert(version, price, block, nft, seller) {
-    var db = new sqlite3.Database(file);
-
-    // insert one row into the langs table
-    db.run(`INSERT INTO listings(version, price, block, nft, collection, symbol, seller) VALUES(?, ?, ?, ?, ?, ?, ?)`,
-        [version, price / 1_000_000_000_000, block, nft, nid_to_cid(nft), nid_to_sid(nft), seller], function (err) {
-            if (err) {
-                return console.log(err.message);
-            }
-            // get the last insert id
-            console.log(`A row has been inserted with rowid ${this.lastID}`);
-        });
-    db.close();
-}
-
-function insert_buy(version, price, block, nft, seller) {
-    var db = new sqlite3.Database(file);
-
-    // insert one row into the langs table
-    db.run(`INSERT INTO sales(version, price, block, nft, collection, symbol, seller) VALUES(?, ?, ?, ?, ?, ?, ?)`,
-        [version, price, block, nft, nid_to_cid(nft), nid_to_sid(nft), seller], function (err) {
-            if (err) {
-                return console.log(err.message);
-            }
-            // get the last insert id
-            console.log(`A sale row has been inserted with rowid ${this.lastID}`);
-        });
-    db.close();
-}
+// const provider = new WsProvider('wss://node.rmrk.app') // Use for production
+const provider = new WsProvider('wss://kusama-rpc.polkadot.io')
+const api = await new ApiPromise({ provider }).isReady;
 
 
 const open = require('open');
@@ -155,9 +97,72 @@ const RMRK_PARTNER = "G7pQAvMZ4yFa7wWsDVJTbNr4shUi98ajzZhRYiMMH1j9LRz";
 const NEW_GUY = "22708b368d163c8007-KV";
 const SKYLAB = "70499e87a25cddd465-CARD";
 
-// const provider = new WsProvider('wss://node.rmrk.app') // Use for production
-const provider = new WsProvider('wss://kusama-rpc.polkadot.io') // Use for production
-const api = await new ApiPromise({ provider }).isReady;
+
+
+
+
+
+// DELETE FROM listings WHERE id=(SELECT id FROM listings WHERE nft="8949171-e0b9bdcc456a36497a-KANBIRD-KANL-00008110");
+function delete_from_sql(nft) {
+    var db = new sqlite3.Database(file);
+
+    // insert one row into the langs table
+    db.run(`DELETE FROM listings WHERE id=(SELECT id FROM listings WHERE nft=(?));`,
+        [nft], function (err) {
+            if (err) {
+                console.log("errrrr");
+                return console.log(err.message);
+            }
+            // get the last insert id
+            // console.log(`A row has been deleted`);
+        });
+    db.close();
+}
+
+// delete_from_sql("11147523-c6017764e7a1d03b5e-RMRKOLDCOINS-OLD_COIN_2203016-0000000000000011");
+
+function update_latest_block_in_sql(block) {
+    var db = new sqlite3.Database(file);
+    db.run(`UPDATE latest_block SET number=(?)`,
+        [block], function (err) {
+            if (err) {
+                return console.log(err.message);
+            }
+        });
+    db.close();
+}
+
+
+function insert(version, price, block, nft, seller) {
+    var db = new sqlite3.Database(file);
+
+    // insert one row into the langs table
+    db.run(`INSERT INTO listings(version, price, block, nft, collection, symbol, seller) VALUES(?, ?, ?, ?, ?, ?, ?)`,
+        [version, price / 1_000_000_000_000, block, nft, nid_to_cid(nft), nid_to_sid(nft), seller], function (err) {
+            if (err) {
+                return console.log(err.message);
+            }
+            // get the last insert id
+            // console.log(`A row has been inserted with rowid ${this.lastID}`);
+        });
+    db.close();
+}
+
+function insert_buy(version, price, block, nft, seller) {
+    var db = new sqlite3.Database(file);
+
+    // insert one row into the langs table
+    db.run(`INSERT INTO sales(version, price, block, nft, collection, symbol, seller) VALUES(?, ?, ?, ?, ?, ?, ?)`,
+        [version, price, block, nft, nid_to_cid(nft), nid_to_sid(nft), seller], function (err) {
+            if (err) {
+                return console.log(err.message);
+            }
+            // get the last insert id
+            // console.log(`A sale row has been inserted with rowid ${this.lastID}`);
+        });
+    db.close();
+}
+
 
 
 // "FRvj8ZJN8nKe9DXyffQbTnnryyWLbfZ8bijfDAo3B869PoL"
@@ -207,11 +212,11 @@ function handle_list(signer, interaction_as_list, block) {
         delete_from_sql(nft);
         return;
     }
-    console.log("LIST!");
+    // console.log("LIST!");
     insert(version, price, block, nft, signer);
     let url = "";
     price = parseFloat(price) / 1_000_000_000_000.
-    console.log(price);
+    // console.log(price);
 
     if (version == "1.0.0") {
         url = `https://singular.rmrk.app/collectibles/${nft}`;
@@ -232,7 +237,7 @@ function handle_list(signer, interaction_as_list, block) {
             webex.post(url)
             // open(url)
         }
-        let statement = `${prestatement} ${name} listed for ${price}KSM by ${signer} \n${url}`;
+        let statement = `\n${prestatement} ${name} LISTED for ${price}KSM by ${signer} \n${url}\n`;
         webex.post(statement);
         console.log(statement);
     }
