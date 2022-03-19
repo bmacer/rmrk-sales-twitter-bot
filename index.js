@@ -224,6 +224,10 @@ function handle_buy(signer, nft, purchase_price, version) {
                 level = " (Limited)"
             }
             prestatement = "Kanaria Bird Sale Alert";
+        } else if (nft.includes("9e5ba1a373b2e45818-STICKIES_OFFICIAL") || nft.includes("9e5ba1a373b2e45818-STICKIES_ITEMS_GENESIS")) {
+            let name = nft.split("-")[3];
+            let statement = `Stickie Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
+            webex.post_to_stickie_room(statement);
         } else {
             prestatement = "New Kanaria Item Sale"
         }
@@ -247,6 +251,7 @@ function handle_buy(signer, nft, purchase_price, version) {
 }
 
 async function twitter_rmrk_bot() {
+    webex.post_to_stickie_room("hello");
     let latest_block = 0;
     api.rpc.chain.subscribeNewHeads(async (header) => {
 
