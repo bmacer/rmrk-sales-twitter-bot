@@ -148,6 +148,11 @@ function handle_list(signer, interaction_as_list) {
                 level = " (Limited)"
             }
             prestatement = "New Kanaria";
+        } else if (nft.includes("9e5ba1a373b2e45818-STICKIES_OFFICIAL") || nft.includes("9e5ba1a373b2e45818-STICKIES_ITEMS_GENESIS")) {
+            let name = nft.split("-")[3];
+            let link = `https://singular.app/collectibles/${nft}`
+            let statement = `Stickie List Alert! ${name} was listed for ${price.toFixed(3)}KSM by ${signer} ${link}`
+            webex.post_to_stickie_room(statement);
         } else {
             let name = nft.split("-")[3];
             prestatement = `New Kanaria Item Listing (${name})`
@@ -226,6 +231,7 @@ function handle_buy(signer, nft, purchase_price, version) {
             prestatement = "Kanaria Bird Sale Alert";
         } else if (nft.includes("9e5ba1a373b2e45818-STICKIES_OFFICIAL") || nft.includes("9e5ba1a373b2e45818-STICKIES_ITEMS_GENESIS")) {
             let name = nft.split("-")[3];
+            let link = `https://singular.app/collectibles/${nft}`
             let statement = `Stickie Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
             webex.post_to_stickie_room(statement);
         } else {
@@ -248,6 +254,24 @@ function handle_buy(signer, nft, purchase_price, version) {
             // webex.post(statement);
         }
     }
+}
+
+function handle_send(signer, interaction_as_list) {
+    console.log("SEND!");
+    console.log(signer, interaction_as_list);
+    let item = interaction_as_list[3]
+    let receiver = interaction_as_list[4]
+
+    if (
+        item.includes("9e5ba1a373b2e45818-STICKIES_OFFICIAL") ||
+        item.includes("9e5ba1a373b2e45818-STICKIES_ITEMS_GENESIS") ||
+        receiver.includes("9e5ba1a373b2e45818-STICKIES_OFFICIAL") ||
+        receiver.includes("9e5ba1a373b2e45818-STICKIES_ITEMS_GENESIS")
+    ) {
+        let statement = `Stickie Send Alert! ${signer} sent ${item} to ${receiver}`
+        webex.post_to_stickie_room(statement);
+    }
+
 }
 
 async function twitter_rmrk_bot() {
@@ -290,6 +314,10 @@ async function twitter_rmrk_bot() {
                         if (interaction == "LIST") {
                             handle_list(signer, interaction_as_list);
                         }
+
+                        if (interaction == "SEND") {
+                            handle_send(signer, interaction_as_list);
+                        }
                     }
                 }
 
@@ -313,6 +341,9 @@ async function twitter_rmrk_bot() {
                             if (interaction_as_list.length >= 4 && interaction_as_list[1] == "BUY") {
                                 nft = interaction_as_list[3]
                                 version = interaction_as_list[2]
+                            }
+                            if (interaction_as_list.length >= 4 && interaction_as_list[1] == "SEND") {
+                                handle_send(signer, interaction_as_list);
                             }
                         }
                     })
