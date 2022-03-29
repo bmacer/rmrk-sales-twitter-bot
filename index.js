@@ -21,17 +21,19 @@ function get_collection_url_from_raw_mint_data(data) {
     return url;
 }
 
-telegram.post("Running")
-webex.post("Running")
+//telegram.post("Running")
+//webex.post("Running")
 const MINIMUM_V1_PRICE = 0.05
 const MINIMUM_V2_PRICE = 0.01
 const LOGFILE = "listings.txt"
 const HOME_DIR = "/home/pi/"
 const DEBUG_LOGS = "unknown.txt"
 
+console.log("1")
 const provider = new WsProvider('wss://node.rmrk.app') // Use for production
+console.log("2")
 const api = await new ApiPromise({ provider }).isReady;
-
+console.log("3")
 let prod = true;
 
 // "FRvj8ZJN8nKe9DXyffQbTnnryyWLbfZ8bijfDAo3B869PoL"
@@ -119,6 +121,67 @@ function handle_list(signer, interaction_as_list) {
                 webex.post(statement);
                 console.log(statement);
             }
+        } else if (nft.includes("8453d0ccb4cb7e9e59-A51")) {
+            post = true;
+            prestatement = `New Alien listing!`
+            let statement = `New Alien listing! ${name} listed for ${(price / 0.98).toFixed(2)}KSM, listed by ${signer} \n${url}`
+            if (prod) {
+                twit.alien(statement);
+            } else {
+                webex.post("non-prod:");
+                webex.post(statement);
+                console.log(statement);
+            }
+        } else if (nft.includes("8eac08398ac3c4d362-SHIBAMOJI") || nft.includes("0488b1a94fd8d61738-SHIBITS") || nft.includes("0488b1a94fd8d61738-SHIBANNERS")) {
+            // shibamoji: https://singular.rmrk.app/collections/8eac08398ac3c4d362-SHIBAMOJI
+            // shibits: https://singular.rmrk.app/collections/0488b1a94fd8d61738-SHIBITS
+            // shibanners: https://singular.rmrk.app/collections/0488b1a94fd8d61738-SHIBANNERS
+            post = true;
+            prestatement = `New Shiba listing!`
+            let statement = `New Shiba listing! ${name} listed for ${(price / 0.98).toFixed(2)}KSM, listed by ${signer} \n${url}`
+            if (prod) {
+                twit.shiba(statement);
+            } else {
+                webex.post("non-prod:");
+                webex.post(statement);
+                console.log(statement);
+            } // 
+        } else if (nft.includes("b45071647155359951-SUBSTRA")) {
+            post = true;
+            prestatement = `New Substranaut listing!`
+            let statement = `New Substranaut listing! ${name} listed for ${(price / 0.98).toFixed(2)}KSM, listed by ${signer} \n${url}`
+            if (prod) {
+                setTimeout(function () { twit.substra(statement); }, 300000);
+            } else {
+                webex.post("non-prod:");
+                webex.post(statement);
+                console.log(statement);
+                // twit.kk(statement); // TODO delete this
+            }
+        } else if (nft.includes("2644199cf3652aaa78-KK01")) {
+            post = true;
+            prestatement = `New Kusama King listing!`
+            let statement = `New Kusama King listing! ${name} listed for ${(price / 0.98).toFixed(2)}KSM, listed by ${signer} \n${url}`
+            if (prod) {
+                setTimeout(function () { twit.kk(statement); }, 300000);
+            } else {
+                webex.post("non-prod:");
+                webex.post(statement);
+                console.log(statement);
+                // twit.kk(statement); // TODO delete this
+            }
+        } else if (nft.includes("06ea5e9291a7e86837-CLOWN")) {
+            post = true;
+            prestatement = `New Second Rate Clown listing!`
+            let statement = `New Second Rate Clown listing! ${name} listed for ${(price / 0.98).toFixed(2)}KSM, listed by ${signer} \n${url}`
+            if (prod) {
+                setTimeout(function () { twit.clowns(statement); }, 300000);
+            } else {
+                webex.post("non-prod:");
+                webex.post(statement);
+                console.log(statement);
+                // twit.kk(statement); // TODO delete this
+            }
         }
         let statement = `${prestatement} ${name} listed for ${price}KSM by ${signer} ${url}`
         if (post) {
@@ -190,6 +253,79 @@ function handle_buy(signer, nft, purchase_price, version) {
                 console.log("prod posting:");
                 console.log(statement);
                 twit.tweet_giraffe(statement);
+            } else {
+                console.log("dev posting:");
+                console.log(statement);
+                webex.post(statement);
+            }
+        }
+        else if (nft.includes("8453d0ccb4cb7e9e59-A51")) {
+            let name = nft.split("-")[3];
+            let link = `https://singular.rmrk.app/collectibles/${nft}`;
+            let statement = `Alien Ant Pharm Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
+            if (prod) {
+                console.log("prod posting:");
+                console.log(statement);
+                setTimeout(function () { twit.alien(statement); }, 30000);
+            } else {
+                console.log("dev posting:");
+                console.log(statement);
+                webex.post(statement);
+                // twit.kk(statement); //TODO delete this
+            }
+        } else if (nft.includes("8eac08398ac3c4d362-SHIBAMOJI") || nft.includes("0488b1a94fd8d61738-SHIBITS") || nft.includes("0488b1a94fd8d61738-SHIBANNERS")) {
+            let name = nft.split("-")[3];
+            let link = `https://singular.rmrk.app/collectibles/${nft}`;
+            let statement = `Shiba Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
+            if (prod) {
+                console.log("prod posting:");
+                console.log(statement);
+                setTimeout(function () { twit.shiba(statement); }, 30000);
+            } else {
+                console.log("dev posting:");
+                console.log(statement);
+                webex.post(statement);
+            }
+        } else if (nft.includes("2644199cf3652aaa78-KK01")) {
+            let name = nft.split("-")[3];
+            let link = `https://singular.rmrk.app/collectibles/${nft}`;
+            let statement = `Kusama King Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
+            if (prod) {
+                console.log("prod posting:");
+                console.log(statement);
+                setTimeout(function () { twit.kk(statement); }, 300000);
+            } else {
+                console.log("dev posting:");
+                console.log(statement);
+                webex.post(statement);
+                // twit.kk(statement); //TODO delete this
+            }
+            // b45071647155359951-SUBSTRA
+        } else if (nft.includes("b45071647155359951-SUBSTRA")) {
+            let name = nft.split("-")[3];
+            let link = `https://singular.rmrk.app/collectibles/${nft}`;
+            let statement = `Substranaut Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
+            if (prod) {
+                console.log("prod posting:");
+                console.log(statement);
+                webex.post(statement);
+                setTimeout(function () { twit.substra(statement); }, 300000);
+
+            } else {
+                console.log("dev posting:");
+                console.log(statement);
+                webex.post(statement);
+            }
+        } else if (nft.includes("06ea5e9291a7e86837-CLOWN")) {
+            let name = nft.split("-")[3];
+            let link = `https://singular.rmrk.app/collectibles/${nft}`;
+            let statement = `Second Rate Clowns Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
+            if (prod) {
+                console.log("prod posting:");
+                console.log(statement);
+                webex.post(statement);
+                setTimeout(function () { twit.clowns(statement); }, 300000);
+
             } else {
                 console.log("dev posting:");
                 console.log(statement);
