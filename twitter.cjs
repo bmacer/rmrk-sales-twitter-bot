@@ -1,6 +1,96 @@
 require('dotenv').config()
 const { TwitterClient } = require('twitter-api-client')
 
+module.exports.substra = async function substra(tweet) {
+    const twitterClient = new TwitterClient({
+        apiKey: process.env.API_SUBSTRA,
+        apiSecret: process.env.API_SECRET_SUBSTRA,
+        accessToken: process.env.TOKEN_SUBSTRA,
+        accessTokenSecret: process.env.TOKEN_SECRET_SUBSTRA,
+    });
+
+    twitterClient.tweets.statusesUpdate({
+        status: tweet
+    }).then(response => {
+        console.log("Tweeted!  Tweet ID: ", response.id)
+    }).catch(err => {
+        console.error(err)
+    })
+
+}
+
+module.exports.shiba = async function shiba(tweet) {
+    const twitterClient = new TwitterClient({
+        apiKey: process.env.API_SHIBA,
+        apiSecret: process.env.API_SECRET_SHIBA,
+        accessToken: process.env.TOKEN_SHIBA,
+        accessTokenSecret: process.env.TOKEN_SECRET_SHIBA,
+    });
+
+    twitterClient.tweets.statusesUpdate({
+        status: tweet
+    }).then(response => {
+        console.log("Tweeted!  Tweet ID: ", response.id)
+    }).catch(err => {
+        console.error(err)
+    })
+
+}
+
+module.exports.alien = async function alien(tweet) {
+    const twitterClient = new TwitterClient({
+        apiKey: process.env.API_ALIEN,
+        apiSecret: process.env.API_SECRET_ALIEN,
+        accessToken: process.env.TOKEN_ALIEN,
+        accessTokenSecret: process.env.TOKEN_SECRET_ALIEN,
+    });
+
+    twitterClient.tweets.statusesUpdate({
+        status: tweet
+    }).then(response => {
+        console.log("Tweeted!  Tweet ID: ", response.id)
+    }).catch(err => {
+        console.error(err)
+    })
+
+}
+
+module.exports.clowns = async function clowns(tweet) {
+    const twitterClient = new TwitterClient({
+        apiKey: process.env.API_CLOWNS,
+        apiSecret: process.env.API_SECRET_CLOWNS,
+        accessToken: process.env.TOKEN_CLOWNS,
+        accessTokenSecret: process.env.TOKEN_SECRET_CLOWNS,
+    });
+
+    twitterClient.tweets.statusesUpdate({
+        status: tweet
+    }).then(response => {
+        console.log("Tweeted!  Tweet ID: ", response.id)
+    }).catch(err => {
+        console.error(err)
+    })
+
+}
+
+module.exports.kk = async function kk(tweet) {
+    const twitterClient = new TwitterClient({
+        apiKey: process.env.API_KK,
+        apiSecret: process.env.API_SECRET_KK,
+        accessToken: process.env.TOKEN_KK,
+        accessTokenSecret: process.env.TOKEN_SECRET_KK,
+    });
+
+    twitterClient.tweets.statusesUpdate({
+        status: tweet
+    }).then(response => {
+        console.log("Tweeted!  Tweet ID: ", response.id)
+    }).catch(err => {
+        console.error(err)
+    })
+
+}
+
 // This is a simple implementation of the Twitter API.  Presumably, this would function the same for other platforms with their implementation
 // The "tweet" parameter is just a string
 module.exports.main = async function tweet(tweet) {

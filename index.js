@@ -399,11 +399,15 @@ function handle_buy(signer, nft, purchase_price, version) {
                 level = " (Limited)"
             }
             prestatement = "Kanaria Bird Sale Alert";
-        } else if (nft.includes("9e5ba1a373b2e45818-STICKIES_OFFICIAL") || nft.includes("9e5ba1a373b2e45818-STICKIES_ITEMS_GENESIS")) {
+        } else if (
+            nft.includes("9e5ba1a373b2e45818-STICKIES_OFFICIAL") ||
+            nft.includes("9e5ba1a373b2e45818-STICKIES_ITEMS_COLLABS") ||
+            nft.includes("9e5ba1a373b2e45818-STICKIES_ITEMS_GENESIS")
+        ) {
             let name = nft.split("-")[3];
             let link = `https://singular.app/collectibles/${nft}`
             let statement = `Stickie Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
-            webex.post_to_stickie_room(statement);
+            webex.post_stickie_sale(statement);
         } else {
             prestatement = "New Kanaria Item Sale"
         }
@@ -435,10 +439,29 @@ function handle_send(signer, interaction_as_list) {
     if (
         item.includes("9e5ba1a373b2e45818-STICKIES_OFFICIAL") ||
         item.includes("9e5ba1a373b2e45818-STICKIES_ITEMS_GENESIS") ||
+        item.includes("9e5ba1a373b2e45818-STICKIES_ITEMS_COLLABS") ||
         receiver.includes("9e5ba1a373b2e45818-STICKIES_OFFICIAL") ||
-        receiver.includes("9e5ba1a373b2e45818-STICKIES_ITEMS_GENESIS")
+        receiver.includes("9e5ba1a373b2e45818-STICKIES_ITEMS_GENESIS") ||
+        receiver.includes("9e5ba1a373b2e45818-STICKIES_ITEMS_COLLABS")
     ) {
         let statement = `Stickie Send Alert! ${signer} sent ${item} to ${receiver}`
+        webex.post_to_stickie_room(statement);
+    }
+
+}
+
+function handle_equip(signer, interaction_as_list) {
+    console.log("SEND!");
+    console.log(signer, interaction_as_list);
+    let item = interaction_as_list[3]
+    // let receiver = interaction_as_list[4]
+
+    if (
+        item.includes("9e5ba1a373b2e45818-STICKIES_OFFICIAL") ||
+        item.includes("9e5ba1a373b2e45818-STICKIES_ITEMS_GENESIS") ||
+        item.includes("9e5ba1a373b2e45818-STICKIES_ITEMS_COLLABS")
+    ) {
+        let statement = `Stickie Equip Alert! ${signer} https://singular.app/collectibles/${item}`
         webex.post_to_stickie_room(statement);
     }
 
