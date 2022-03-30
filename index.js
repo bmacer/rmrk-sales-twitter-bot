@@ -4,6 +4,7 @@ import { createRequire } from "module";
 import { u8aToHex } from "@polkadot/util";
 import { decodeAddress, Keyring } from "@polkadot/keyring";
 import { execPath } from 'process';
+import { assert } from 'console';
 // import keyring from '@polkadot/ui-keyring';
 
 const require = createRequire(import.meta.url);
@@ -21,6 +22,38 @@ function get_collection_url_from_raw_mint_data(data) {
     return url;
 }
 
+const winston = require('winston');
+
+const logger = winston.createLogger({
+    level: 'info',
+    // format: winston.format.json(),
+    format: winston.format.simple(),
+    defaultMeta: { service: 'user-service' },
+    transports: [
+        //
+        // - Write all logs with importance level of `error` or less to `error.log`
+        // - Write all logs with importance level of `info` or less to `combined.log`
+        //
+        new winston.transports.File({ filename: 'error.log', level: 'error' }),
+        new winston.transports.File({ filename: 'combined.log' }),
+    ],
+});
+
+//
+// If we're not in production then log to the `console` with the format:
+// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
+//
+
+// if (process.env.NODE_ENV !== 'production') {
+//     logger.add(new winston.transports.Console({
+//         format: winston.format.simple(),
+//     }));
+// }
+
+logger.info("testing success log");
+
+
+
 //telegram.post("Running")
 //webex.post("Running")
 const MINIMUM_V1_PRICE = 0.05
@@ -28,12 +61,13 @@ const MINIMUM_V2_PRICE = 0.01
 const LOGFILE = "listings.txt"
 const HOME_DIR = "/home/pi/"
 const DEBUG_LOGS = "unknown.txt"
+const ERROR_LOGS = "errors.log"
 
-console.log("1")
+console.log("Beginning run on index.js...")
 const provider = new WsProvider('wss://node.rmrk.app') // Use for production
-console.log("2")
+console.log("Connected to WS Provider...")
 const api = await new ApiPromise({ provider }).isReady;
-console.log("3")
+console.log("API object initialized...")
 let prod = true;
 
 // "FRvj8ZJN8nKe9DXyffQbTnnryyWLbfZ8bijfDAo3B869PoL"
@@ -411,87 +445,94 @@ function handle_send(signer, interaction_as_list) {
 }
 
 async function twitter_rmrk_bot() {
-    webex.post_to_stickie_room("hello");
-    let latest_block = 0;
-    api.rpc.chain.subscribeNewHeads(async (header) => {
+    try {
+        webex.post_to_stickie_room("hello");
+        let latest_block = 0;
+        api.rpc.chain.subscribeNewHeads(async (header) => {
 
-        // Sometimes we get fed the same block twice, let's not eat it.
-        if (header.number - 1 <= latest_block) {
-            return
-        }
-        latest_block = header.number - 1;
-        fs.writeFile("latest.txt", Date().toString(), () => { });
-        // We console.log and write to file just to see the stream of blocks we're receiving (to know we're alive)
-        console.log(`block: ${header.number - 1} (${header.parentHash})`);
-        // fs.appendFile(DEBUG_LOGS, `block: ${header.number - 1} (${header.parentHash})\n`, () => { });
-        // Subscribing to blocks
-        const getBlock = api.rpc.chain.getBlock(header.parentHash).then(async (block) => {
-            // Loop through extrinsics
-            block.block.extrinsics.forEach(async (i) => {
-                let signer = ""
-                if (i.signer) {
-                    signer = i.signer.toString();
-                    let twitter_handle = await get_id(signer);
-                    if (twitter_handle) {
-                        signer = twitter_handle;
-                    }
-                }
-                if (i.method.section == "system") {
-                    console.log("system");
-                    let interaction_as_list = i.args[0].toHuman().split("::")
-                    if (interaction_as_list.length >= 3) {
-                        console.log(i.args[0].toHuman());
-                        let interaction = interaction_as_list[1];
-
-                        if (interaction == "MINTNFT") {
-                            handle_mint(signer, interaction_as_list)
-                        }
-
-                        if (interaction == "LIST") {
-                            handle_list(signer, interaction_as_list);
-                        }
-
-                        if (interaction == "SEND") {
-                            handle_send(signer, interaction_as_list);
+            // Sometimes we get fed the same block twice, let's not eat it.
+            if (header.number - 1 <= latest_block) {
+                return
+            }
+            latest_block = header.number - 1;
+            fs.writeFile("latest_block.txt", Date().toString(), () => { });
+            // We console.log and write to file just to see the stream of blocks we're receiving (to know we're alive)
+            console.log(`block: ${header.number - 1} (${header.parentHash})`);
+            // fs.appendFile(DEBUG_LOGS, `block: ${header.number - 1} (${header.parentHash})\n`, () => { });
+            // Subscribing to blocks
+            const getBlock = api.rpc.chain.getBlock(header.parentHash).then(async (block) => {
+                // Loop through extrinsics
+                block.block.extrinsics.forEach(async (i) => {
+                    let signer = ""
+                    if (i.signer) {
+                        signer = i.signer.toString();
+                        let twitter_handle = await get_id(signer);
+                        if (twitter_handle) {
+                            signer = twitter_handle;
                         }
                     }
-                }
+                    if (i.method.section == "system") {
+                        console.log("system");
+                        let interaction_as_list = i.args[0].toHuman().split("::")
+                        if (interaction_as_list.length >= 3) {
+                            console.log(i.args[0].toHuman());
+                            let interaction = interaction_as_list[1];
 
-                if (i.method.section == "utility") {
-                    let nft = ""; // This will be the ID of the nft
-                    let purchase_price = 0; // This will be the total amount transferred in the batch
-                    let purchaser = i.signer; // This is the caller of the batch
-                    let version = ""; // This is the RMRK version (1.0.0 or 2.0.0)
-                    // Looping through each element in the batch
-                    i.method.args[0].forEach((el) => {
-                        // If the element is a transfer, we get the balance transferred
-                        if (el.method == "transfer") {
-                            // We add here because there is both the transfer to the seller and the fee
-                            purchase_price += parseInt(el.args[1])
-                        }
-                        // If the element is "remark", we extract nft and version variables
-                        if (el.method == "remark") {
-                            // Split the argument into a list
-                            let interaction_as_list = el.args[0].toHuman().split("::")
-                            // Make sure we're dealing with a "BUY" with enough args
-                            if (interaction_as_list.length >= 4 && interaction_as_list[1] == "BUY") {
-                                nft = interaction_as_list[3]
-                                version = interaction_as_list[2]
+                            if (interaction == "MINTNFT") {
+                                handle_mint(signer, interaction_as_list)
                             }
-                            if (interaction_as_list.length >= 4 && interaction_as_list[1] == "SEND") {
+
+                            if (interaction == "LIST") {
+                                handle_list(signer, interaction_as_list);
+                            }
+
+                            if (interaction == "SEND") {
                                 handle_send(signer, interaction_as_list);
                             }
                         }
-                    })
-                    // Only if our assignments were successful should we sent to our publishing api
-                    if (nft != "" && purchase_price != 0 && purchaser != "") {
-                        let price = parseFloat(purchase_price) / 1_000_000_000_000.
-                        handle_buy(signer, nft, price, version);
                     }
-                }
+
+                    if (i.method.section == "utility") {
+                        let nft = ""; // This will be the ID of the nft
+                        let purchase_price = 0; // This will be the total amount transferred in the batch
+                        let purchaser = i.signer; // This is the caller of the batch
+                        let version = ""; // This is the RMRK version (1.0.0 or 2.0.0)
+                        // Looping through each element in the batch
+                        i.method.args[0].forEach((el) => {
+                            // If the element is a transfer, we get the balance transferred
+                            if (el.method == "transfer") {
+                                // We add here because there is both the transfer to the seller and the fee
+                                purchase_price += parseInt(el.args[1])
+                            }
+                            // If the element is "remark", we extract nft and version variables
+                            if (el.method == "remark") {
+                                // Split the argument into a list
+                                let interaction_as_list = el.args[0].toHuman().split("::")
+                                // Make sure we're dealing with a "BUY" with enough args
+                                if (interaction_as_list.length >= 4 && interaction_as_list[1] == "BUY") {
+                                    nft = interaction_as_list[3]
+                                    version = interaction_as_list[2]
+                                }
+                                if (interaction_as_list.length >= 4 && interaction_as_list[1] == "SEND") {
+                                    handle_send(signer, interaction_as_list);
+                                }
+                            }
+                        })
+                        // Only if our assignments were successful should we sent to our publishing api
+                        if (nft != "" && purchase_price != 0 && purchaser != "") {
+                            let price = parseFloat(purchase_price) / 1_000_000_000_000.
+                            handle_buy(signer, nft, price, version);
+                        }
+                    }
+                });
             });
         });
-    });
+    }
+    catch (e) {
+        console.log(e);
+        logger.error(`\n${Date().toString()}\nName: ${e.name}\nMessage: ${e.message}\nStack: \n${e.stack}\n`);
+        process.exit(0);
+    }
 }
 
 twitter_rmrk_bot()

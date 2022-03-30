@@ -1,9 +1,9 @@
-latest.txt
 debug.txt
 .env
 node_modules
 logs.log
 package-lock.json
 yarn.lock
-latest*
-latest.txt
+combined.log
+error.log
+latest_block.txt
