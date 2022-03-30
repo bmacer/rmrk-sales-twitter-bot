@@ -512,6 +512,10 @@ async function twitter_rmrk_bot() {
                             if (interaction == "SEND") {
                                 handle_send(signer, interaction_as_list);
                             }
+
+                            if (interaction == "EQUIP") {
+                                handle_equip(signer, interaction_as_list);
+                            }
                         }
                     }
 
@@ -538,6 +542,9 @@ async function twitter_rmrk_bot() {
                                 }
                                 if (interaction_as_list.length >= 4 && interaction_as_list[1] == "SEND") {
                                     handle_send(signer, interaction_as_list);
+                                }
+                                if (interaction_as_list.length >= 4 && interaction_as_list[1] == "EQUIP") {
+                                    handle_equip(signer, interaction_as_list);
                                 }
                             }
                         })
