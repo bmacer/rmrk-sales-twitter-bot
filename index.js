@@ -53,7 +53,7 @@ const logger = winston.createLogger({
 logger.info("testing success log");
 
 
-
+telegram.arch("i am archiverse")
 //telegram.post("Running")
 //webex.post("Running")
 const MINIMUM_V1_PRICE = 0.05
@@ -495,6 +495,10 @@ async function twitter_rmrk_bot() {
                         }
                     }
                     if (i.method.section == "system") {
+			let a = i.args[0].toHuman();
+			if (a.includes("36bad3dc147db9792b")) {
+                            telegram.arch(a);
+		        };
                         console.log("system");
                         let interaction_as_list = i.args[0].toHuman().split("::")
                         if (interaction_as_list.length >= 3) {
@@ -533,6 +537,10 @@ async function twitter_rmrk_bot() {
                             }
                             // If the element is "remark", we extract nft and version variables
                             if (el.method == "remark") {
+				let a = el.args[0].toHuman();
+				if (a.includes("36bad3dc147db9792b-PYRAMIDS")) { 	
+				    telegram.arch(a);
+			        };
                                 // Split the argument into a list
                                 let interaction_as_list = el.args[0].toHuman().split("::")
                                 // Make sure we're dealing with a "BUY" with enough args
