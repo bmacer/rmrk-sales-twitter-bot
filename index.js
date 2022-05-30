@@ -251,6 +251,7 @@ function handle_list(signer, interaction_as_list) {
             let statement = `Stickie List Alert! ${name} was listed for ${price.toFixed(3)}KSM by ${signer} ${link}`
             webex.post_to_stickie_room(statement);
         } else if (nft.includes("90c6619c6b94fcfd34-EVRLOOT_TAROT_CARDS")) {
+            price = price / 0.865;
             let name = nft.split("-")[3];
             let link = `https://singular.app/collectibles/${nft}`
             let statement = `Evrl00t Tarot Card Listing Alert! ${name} was listed for ${price.toFixed(3)}KSM by ${signer} ${link}`
@@ -414,6 +415,7 @@ function handle_buy(signer, nft, purchase_price, version) {
             let statement = `Stickie Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
             webex.post_stickie_sale(statement);
         } else if (nft.includes("90c6619c6b94fcfd34-EVRLOOT_TAROT_CARDS")) {
+            purchase_price = purchase_price / 0.865;
             let name = nft.split("-")[3];
             let link = `https://singular.app/collectibles/${nft}`
             let statement = `Evrl00t Tarot Card Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
