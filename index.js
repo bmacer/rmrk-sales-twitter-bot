@@ -250,6 +250,11 @@ function handle_list(signer, interaction_as_list) {
             let link = `https://singular.app/collectibles/${nft}`
             let statement = `Stickie List Alert! ${name} was listed for ${price.toFixed(3)}KSM by ${signer} ${link}`
             webex.post_to_stickie_room(statement);
+        } else if (nft.includes("90c6619c6b94fcfd34-EVRLOOT_TAROT_CARDS")) {
+            let name = nft.split("-")[3];
+            let link = `https://singular.app/collectibles/${nft}`
+            let statement = `Evrl00t Tarot Card Listing Alert! ${name} was listed for ${price.toFixed(3)}KSM by ${signer} ${link}`
+            twit.evrloot(statement);
         } else {
             let name = nft.split("-")[3];
             prestatement = `New Kanaria Item Listing (${name})`
@@ -408,6 +413,11 @@ function handle_buy(signer, nft, purchase_price, version) {
             let link = `https://singular.app/collectibles/${nft}`
             let statement = `Stickie Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
             webex.post_stickie_sale(statement);
+        } else if (nft.includes("90c6619c6b94fcfd34-EVRLOOT_TAROT_CARDS")) {
+            let name = nft.split("-")[3];
+            let link = `https://singular.app/collectibles/${nft}`
+            let statement = `Evrl00t Tarot Card Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
+            twit.evrloot(statement);
         } else {
             prestatement = "New Kanaria Item Sale"
         }
@@ -446,6 +456,9 @@ function handle_send(signer, interaction_as_list) {
     ) {
         let statement = `Stickie Send Alert! ${signer} sent ${item} to ${receiver}`
         webex.post_to_stickie_room(statement);
+    } else if (item.includes("90c6619c6b94fcfd34-EVRLOOT_TAROT_CARDS")) {
+        let statement = `Evrl00t Send Alert! ${signer} sent ${item} to ${receiver}`
+        twit.evrloot(statement);
     }
 
 }
@@ -495,10 +508,10 @@ async function twitter_rmrk_bot() {
                         }
                     }
                     if (i.method.section == "system") {
-			let a = i.args[0].toHuman();
-			if (a.includes("36bad3dc147db9792b")) {
+                        let a = i.args[0].toHuman();
+                        if (a.includes("36bad3dc147db9792b")) {
                             telegram.arch(a);
-		        };
+                        };
                         console.log("system");
                         let interaction_as_list = i.args[0].toHuman().split("::")
                         if (interaction_as_list.length >= 3) {
@@ -537,10 +550,10 @@ async function twitter_rmrk_bot() {
                             }
                             // If the element is "remark", we extract nft and version variables
                             if (el.method == "remark") {
-				let a = el.args[0].toHuman();
-				if (a.includes("36bad3dc147db9792b-PYRAMIDS")) { 	
-				    telegram.arch(a);
-			        };
+                                let a = el.args[0].toHuman();
+                                if (a.includes("36bad3dc147db9792b")) {
+                                    telegram.arch(a);
+                                };
                                 // Split the argument into a list
                                 let interaction_as_list = el.args[0].toHuman().split("::")
                                 // Make sure we're dealing with a "BUY" with enough args

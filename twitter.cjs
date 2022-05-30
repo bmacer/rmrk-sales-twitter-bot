@@ -1,6 +1,24 @@
 require('dotenv').config()
 const { TwitterClient } = require('twitter-api-client')
 
+module.exports.evrloot = async function evrloot(tweet) {
+    const twitterClient = new TwitterClient({
+        apiKey: process.env.API_EVRLOOT,
+        apiSecret: process.env.API_SECRET_EVRLOOT,
+        accessToken: process.env.TOKEN_EVRLOOT,
+        accessTokenSecret: process.env.TOKEN_SECRET_EVRLOOT,
+    });
+
+    twitterClient.tweets.statusesUpdate({
+        status: tweet
+    }).then(response => {
+        console.log("Tweeted!  Tweet ID: ", response.id)
+    }).catch(err => {
+        console.error(err)
+    })
+
+}
+
 module.exports.substra = async function substra(tweet) {
     const twitterClient = new TwitterClient({
         apiKey: process.env.API_SUBSTRA,
