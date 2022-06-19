@@ -64,7 +64,10 @@ const DEBUG_LOGS = "unknown.txt"
 const ERROR_LOGS = "errors.log"
 
 console.log("Beginning run on index.js...")
-const provider = new WsProvider('wss://node.rmrk.app') // Use for production
+// const provider = new WsProvider('wss://node.rmrk.app') // Use for production
+const provider = new WsProvider('wss://kusama-rpc.polkadot.io') // Use for production
+
+//kusama-rpc.polkadot.io
 console.log("Connected to WS Provider...")
 const api = await new ApiPromise({ provider }).isReady;
 console.log("API object initialized...")
