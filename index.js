@@ -112,7 +112,7 @@ function handle_mint(signer, interaction_as_list) {
         } else {
             console.log("Minting of a non-captured collection:");
             console.log(statement);
-            fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
+            // fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
         }
     }
 }
@@ -226,7 +226,7 @@ function handle_list(signer, interaction_as_list) {
         } else {
             console.log("Listing of a non-captured collection:");
             console.log(statement);
-            fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
+            // fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
         }
     }
     if (version == "2.0.0") {
@@ -381,7 +381,7 @@ function handle_buy(signer, nft, purchase_price, version) {
             if (prod) {
                 console.log("prod posting:");
                 console.log(statement);
-                fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
+                // fs.appendFile(DEBUG_LOGS, `${statement}\n`, () => { });
                 // twit.tweet_giraffe(statement);
             } else {
                 console.log("dev posting:");
@@ -499,7 +499,7 @@ async function twitter_rmrk_bot() {
             fs.writeFile("latest_block.txt", Date().toString(), () => { });
             // We console.log and write to file just to see the stream of blocks we're receiving (to know we're alive)
             console.log(`block: ${header.number - 1} (${header.parentHash})`);
-            fs.appendFile(DEBUG_LOGS, `block: ${header.number - 1} (${header.parentHash})\n`, () => { });
+            // fs.appendFile(DEBUG_LOGS, `block: ${header.number - 1} (${header.parentHash})\n`, () => { });
             // Subscribing to blocks
             const getBlock = api.rpc.chain.getBlock(header.parentHash).then(async (block) => {
                 // Loop through extrinsics
@@ -522,7 +522,7 @@ async function twitter_rmrk_bot() {
                         if (interaction_as_list.length >= 3) {
                             console.log(i.args[0].toHuman());
                             let interaction = interaction_as_list[1];
-                            fs.appendFile(DEBUG_LOGS, interaction_as_list);
+                            // fs.appendFile(DEBUG_LOGS, interaction_as_list);
 
 
                             if (interaction == "MINTNFT") {
@@ -563,7 +563,7 @@ async function twitter_rmrk_bot() {
                                 };
                                 // Split the argument into a list
                                 let interaction_as_list = el.args[0].toHuman().split("::")
-                                fs.appendFile(DEBUG_LOGS, interaction_as_list);
+                                // fs.appendFile(DEBUG_LOGS, interaction_as_list);
 
                                 // Make sure we're dealing with a "BUY" with enough args
                                 if (interaction_as_list.length >= 4 && interaction_as_list[1] == "BUY") {
