@@ -89,7 +89,6 @@ function skybreach_bot() {
                 }
                 // We only care about EIP1559 (not Legacy) Ethereum extrinsics
                 if (!eip_call) {
-                    console.log("not an eip call, returning");
                     return;
                 };
 
