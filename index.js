@@ -64,8 +64,8 @@ function skybreach_bot() {
         console.log(`block: ${block_number} (${header.parentHash})`);
 
         // let BLOCK = BLOCK_HASH_VOUCHER_MULTIPLE_LANDS;
-        let BLOCK = "0xe4c77236666951b8d70bb54b7ab44a550c2dd21bb7dc1ea25880255810ff73e8";
-        // let BLOCK = header.parentHash;
+        // let BLOCK = "0xe4c77236666951b8d70bb54b7ab44a550c2dd21bb7dc1ea25880255810ff73e8";
+        let BLOCK = header.parentHash;
 
         // Subscribing to blocks from the chain (toggle commented line to test)
         // const getBlock = api.rpc.chain.getBlock(header.parentHash).then(async (block) => {
