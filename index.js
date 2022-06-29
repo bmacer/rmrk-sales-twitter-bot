@@ -13,6 +13,7 @@ const require = createRequire(import.meta.url);
 
 const parse_data = require("./parse_skybreach_data.cjs");
 const webex = require("./webex.cjs");
+const twitter = require("./twitter.cjs");
 
 // Web Sockets
 const MOONRIVER_WS = "wss.api.moonriver.moonbeam.network";
@@ -48,6 +49,7 @@ function skybreach_bot() {
 
         // Initializing our variables
         let voucher_purchase = false;
+        let is_purchase_with_rmrk = false;
         let purchase_price;
         let purchaser;
         let seller;
@@ -119,6 +121,7 @@ function skybreach_bot() {
                     }
 
                     if (r.event.index.toString() == PURCHASE_INDEX_ID) {
+                        console.log("found PURCHASE_INDEX_ID")
                         let price_long = r.event.data[3];
                         purchase_price = price_long / (10 ** 10);
                         purchaser = r.event.data[1];
@@ -128,7 +131,7 @@ function skybreach_bot() {
                     let topics = r.event.data[0].topics;
                     if (topics) {
                         if (topics[0] == TOPIC_COORDINATES) {
-                            console.log("Found topic coordinates.  Likely VOUCHER REDEEM");
+                            console.log("Found TOPIC_COORDINATES");
                             voucher_purchase = true;
                             let data = r.event.data[0].data;
                             coordinates = parse_data.extract_coordinates_from_topic(data.toString());
@@ -143,16 +146,20 @@ function skybreach_bot() {
                     coordinates = parse_data.parse(data);
                 }
 
-                if (voucher_purchase) {
+
+                if (purchase_price && purchaser && coordinates && seller) {
+                    let statement = `SKYBREACH LAND PURCHASE!\nLocation: ${coordinates}\nPaid: ${purchase_price}RMRK\nPurchaser: ${purchaser}\nSeller: ${seller}`;
+                    statement = statement.replace("0x7e8421b873429eE58A06055E89CD0DBeF51784F0", "Original Land Sale");
+                    console.log(statement);
+                    webex.post(statement);
+                    webex.post(moon_url);
+                    twitter.skybreach_listing(statement);
+                } else if (voucher_purchase) {
                     let statement = `SKYBREACH LAND VOUCHER REDEEMED!\nLocation: ${coordinates}\nRedeemer: ${purchaser}`;
                     console.log(statement);
                     webex.post(statement);
                     webex.post(moon_url);
-                } else if (purchase_price && purchaser && coordinates && seller) {
-                    let statement = `SKYBREACH LAND PURCHASE!\nLocation: ${coordinates}\nPaid: ${purchase_price}RMRK\nPurchaser: ${purchaser}\nSeller: ${seller}`;
-                    console.log(statement);
-                    webex.post(statement);
-                    webex.post(moon_url);
+                    twitter.skybreach_listing(statement);
                 }
             });
         });
