@@ -1,3 +1,4 @@
+
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { createRequire } from "module";
 import { BlockList } from 'net';
@@ -9,9 +10,11 @@ import {
     BLOCK_HASH_VOUCHER_MULTIPLE_LANDS
 } from './testing_blocks.js';
 
-const require = createRequire(import.meta.url);
 
-const isProd = true;
+const require = createRequire(import.meta.url);
+require('dotenv').config()
+
+const isProd = process.env.IS_PROD == "true";
 
 const parse_data = require("./parse_skybreach_data.cjs");
 const webex = require("./webex.cjs");
@@ -56,6 +59,7 @@ function skybreach_bot() {
         let purchaser;
         let seller;
         let coordinates;
+        let BLOCK;
 
         // Sometimes we get fed the same block twice, let's not eat it.
         if (header.number - 1 <= latest_block) {
@@ -67,9 +71,14 @@ function skybreach_bot() {
         let moon_url = `https://moonriver.moonscan.io/block/${block_number}`;
         console.log(`block: ${block_number} (${header.parentHash})`);
 
-        // let BLOCK = BLOCK_HASH_VOUCHER_MULTIPLE_LANDS;
-        let BLOCK = "0x35dfb0cac176f6d3f8f4814acc630abf299c6bceab8dffc812c69917802d8130";
-        // let BLOCK = header.parentHash;
+        if (isProd) {
+            console.log("is prod");
+            BLOCK = header.parentHash;
+        } else {
+            console.log("is not prod");
+            // BLOCK = BLOCK_HASH_VOUCHER_MULTIPLE_LANDS;
+            BLOCK = "0x1dcd6647758f56f5b7515155f672e37bf48246c14f3890e5871e9b35de324378"
+        }
 
         // Subscribing to blocks from the chain (toggle commented line to test)
         // const getBlock = api.rpc.chain.getBlock(header.parentHash).then(async (block) => {
