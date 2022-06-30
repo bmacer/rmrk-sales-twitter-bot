@@ -11,6 +11,8 @@ import {
 
 const require = createRequire(import.meta.url);
 
+const isProd = true;
+
 const parse_data = require("./parse_skybreach_data.cjs");
 const webex = require("./webex.cjs");
 const twitter = require("./twitter.cjs");
@@ -66,8 +68,8 @@ function skybreach_bot() {
         console.log(`block: ${block_number} (${header.parentHash})`);
 
         // let BLOCK = BLOCK_HASH_VOUCHER_MULTIPLE_LANDS;
-        // let BLOCK = "0xe4c77236666951b8d70bb54b7ab44a550c2dd21bb7dc1ea25880255810ff73e8";
-        let BLOCK = header.parentHash;
+        let BLOCK = "0x35dfb0cac176f6d3f8f4814acc630abf299c6bceab8dffc812c69917802d8130";
+        // let BLOCK = header.parentHash;
 
         // Subscribing to blocks from the chain (toggle commented line to test)
         // const getBlock = api.rpc.chain.getBlock(header.parentHash).then(async (block) => {
@@ -112,7 +114,7 @@ function skybreach_bot() {
                     // Events are related to extrinsic indexes.  We only care about events that are 
                     // correlated to our specific extrinsic
                     let extrinsic_id = r.phase.asApplyExtrinsic.words[0];
-                    if (!extrinsic_index == extrinsic_id) {
+                    if (extrinsic_index != extrinsic_id) {
                         return;
                     }
 
@@ -122,8 +124,12 @@ function skybreach_bot() {
 
                     if (r.event.index.toString() == PURCHASE_INDEX_ID) {
                         console.log("found PURCHASE_INDEX_ID")
-                        let price_long = r.event.data[3];
-                        purchase_price = price_long / (10 ** 10);
+                        let price_long = r.event.data[3].toString();
+                        if (purchase_price) {
+                            purchase_price += price_long / (10 ** 10);
+                        } else {
+                            purchase_price = price_long / (10 ** 10);
+                        }
                         purchaser = r.event.data[1];
                         seller = r.event.data[2];
                     }
@@ -153,13 +159,17 @@ function skybreach_bot() {
                     console.log(statement);
                     webex.post(statement);
                     webex.post(moon_url);
-                    twitter.skybreach_listing(statement);
+                    if (isProd) {
+                        twitter.skybreach_listing(statement);
+                    }
                 } else if (voucher_purchase) {
                     let statement = `SKYBREACH LAND VOUCHER REDEEMED!\nLocation: ${coordinates}\nRedeemer: ${purchaser}`;
                     console.log(statement);
                     webex.post(statement);
                     webex.post(moon_url);
-                    twitter.skybreach_listing(statement);
+                    if (isProd) {
+                        twitter.skybreach_listing(statement);
+                    }
                 }
             });
         });
