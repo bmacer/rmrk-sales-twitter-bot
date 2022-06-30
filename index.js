@@ -15,6 +15,7 @@ const require = createRequire(import.meta.url);
 require('dotenv').config()
 
 const isProd = process.env.IS_PROD == "true";
+console.log(`Running in production? --> ${isProd}`);
 
 const parse_data = require("./parse_skybreach_data.cjs");
 const webex = require("./webex.cjs");
@@ -72,10 +73,8 @@ function skybreach_bot() {
         console.log(`block: ${block_number} (${header.parentHash})`);
 
         if (isProd) {
-            console.log("is prod");
             BLOCK = header.parentHash;
         } else {
-            console.log("is not prod");
             // BLOCK = BLOCK_HASH_VOUCHER_MULTIPLE_LANDS;
             BLOCK = "0x1dcd6647758f56f5b7515155f672e37bf48246c14f3890e5871e9b35de324378"
         }
