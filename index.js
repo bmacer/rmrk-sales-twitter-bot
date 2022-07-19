@@ -434,11 +434,15 @@ function handle_buy(signer, nft, purchase_price, version) {
             let link = `https://singular.app/collectibles/${nft}`
             let statement = `Stickie Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
             webex.post_stickie_sale(statement);
-        } else if (nft.includes("-EVRLOOT_TAROT_CARDS")) {
+        } else if (
+            nft.includes(EVRLOOT_TAROT_COLLECTION_ID) ||
+            nft.includes(EVRLOOT_ITEMS_COLLECTION_ID) ||
+            nft.includes(EVRSOULS_COLLECTION_ID)
+        ) {
             purchase_price = purchase_price / 0.865;
             let name = nft.split("-")[3];
             let link = `https://singular.app/collectibles/${nft}`
-            let statement = `Evrl00t Tarot Card Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
+            let statement = `Evrloot Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
             twit.evrloot(statement);
         } else {
             prestatement = "New Kanaria Item Sale"
