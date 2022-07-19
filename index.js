@@ -13,6 +13,14 @@ const twit = require("./twitter.cjs");
 const telegram = require("./telegram.cjs");
 const webex = require("./webex.cjs");
 
+
+
+
+
+const EVRLOOT_TAROT_COLLECTION_ID = "90c6619c6b94fcfd34-EVRLOOT_TAROT_CARDS";
+const EVRLOOT_ITEMS_COLLECTION_ID = "54bbd380dc3baaa27b-EVRLOOT";
+const EVRSOULS_COLLECTION_ID = "54bbd380dc3baaa27b-EVRSOULS";
+
 function get_collection_url_from_raw_mint_data(data) {
     console.log(data);
     let decoded_mint_data = decodeURIComponent(data);
@@ -253,11 +261,20 @@ function handle_list(signer, interaction_as_list) {
             let link = `https://singular.app/collectibles/${nft}`
             let statement = `Stickie List Alert! ${name} was listed for ${price.toFixed(3)}KSM by ${signer} ${link}`
             webex.post_to_stickie_room(statement);
-        } else if (nft.includes("90c6619c6b94fcfd34-EVRLOOT_TAROT_CARDS")) {
-            price = price / 0.865;
+        } else if (
+            nft.includes(EVRLOOT_TAROT_COLLECTION_ID) ||
+            nft.includes(EVRLOOT_ITEMS_COLLECTION_ID) ||
+            nft.includes(EVRSOULS_COLLECTION_ID)
+        ) {
+            if (nft.includes(EVRLOOT_ITEMS_COLLECTION_ID) ||
+                nft.includes(EVRSOULS_COLLECTION_ID)) {
+                price = price / 0.915
+            } else {
+                price = price / 0.865;
+            }
             let name = nft.split("-")[3];
             let link = `https://singular.app/collectibles/${nft}`
-            let statement = `Evrl00t Tarot Card Listing Alert! ${name} was listed for ${price.toFixed(3)}KSM by ${signer} ${link}`
+            let statement = `Evrloot Listing Alert! ${name} was listed for ${price.toFixed(3)}KSM by ${signer} ${link}`
             twit.evrloot(statement);
         } else {
             let name = nft.split("-")[3];
@@ -417,7 +434,7 @@ function handle_buy(signer, nft, purchase_price, version) {
             let link = `https://singular.app/collectibles/${nft}`
             let statement = `Stickie Sale Alert! ${name} was purchased for ${purchase_price.toFixed(2)}KSM by ${signer} ${link}`
             webex.post_stickie_sale(statement);
-        } else if (nft.includes("90c6619c6b94fcfd34-EVRLOOT_TAROT_CARDS")) {
+        } else if (nft.includes("-EVRLOOT_TAROT_CARDS")) {
             purchase_price = purchase_price / 0.865;
             let name = nft.split("-")[3];
             let link = `https://singular.app/collectibles/${nft}`
