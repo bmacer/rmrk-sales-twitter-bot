@@ -7,6 +7,13 @@ function convert_raw_decimal_to_x_y_tuple(num) {
     return [x, y];
 }
 
+module.exports.convert_hex_to_x_y_coordinates = function convert_hex_to_x_y_coordinates(num) {
+    num = parseInt(num, 16);
+    let y = Math.floor(num / 256);
+    let x = num - (y * 256);
+    return [x, y];
+}
+
 module.exports.parse = function parse_data(data) {
     let method = data.slice(0, 10);
     data = data.slice(10);

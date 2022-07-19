@@ -10,7 +10,6 @@ import {
     BLOCK_HASH_VOUCHER_MULTIPLE_LANDS
 } from './testing_blocks.js';
 
-
 const require = createRequire(import.meta.url);
 require('dotenv').config()
 
@@ -27,17 +26,36 @@ const BACKUP_WS = "moonriver-rpc.dwellir.com"
 
 // RMRK ETH contract
 // https://moonriver.moonscan.io/address/0x98af019cdf16990130cba555861046b02e9898cc
-const RMRK_CONTRACT = "0x98af019cdf16990130cba555861046b02e9898cc";
+// const OLD_RMRK_CONTRACT = "0x98af019cdf16990130cba555861046b02e9898cc";
+const RMRK_CONTRACT = "0x913a3e067a559ba24a7a06a6cdea4837eeeaf72d";
 
 // TOPIC ID for Rarity and Coordinates
 const TOPIC_RARITY = "0x2b027c92af51f684f8f32d81528135b3fc9de472e7ee1e7c1ef2069342061cae";
 const TOPIC_COORDINATES = "0x8ab30b0cba3d3325d957c283bcd2f5ac70efe38245303058259d4c9dbb7d4321";
+
+// Prefix for LISTING function
+const LISTING_FUNCTION_PREFIX = "50fd7367";
+
+// Prefix for RE-LISTING function
+const RELISTING_FUNCTION_PREFIX = "b3de019c";
 
 // Index for Event that will reliably provide buyer (for Voucher Redeem)
 const BUYER_INDEX = "0x0a08";
 
 // Index for Event that will provide purchase details 
 const PURCHASE_INDEX_ID = "0x6802";
+
+// Index for Event that will provide LISTING details
+const BALANCE_WITHDRAW_EVENT_FOR_SELLER = "0x0a08";
+
+// Index for Event that will provide OFFER details
+const OFFER_INDEX_ID = "";
+
+// Index for Event that will provide TRANSFER details
+const TRANSFER_INDEX_ID = "";
+
+// Index for Event that will provide CHANGE PRICE details
+const CHANGE_PRICE_INDEX_ID = "";
 
 let ws = MOONRIVER_WS;
 
@@ -56,7 +74,9 @@ function skybreach_bot() {
         // Initializing our variables
         let voucher_purchase = false;
         let is_purchase_with_rmrk = false;
+        let is_a_listing = false;
         let purchase_price;
+        let selling_price;
         let purchaser;
         let seller;
         let coordinates;
@@ -73,10 +93,22 @@ function skybreach_bot() {
         console.log(`block: ${block_number} (${header.parentHash})`);
 
         if (isProd) {
+            console.log("Is PROD");
             BLOCK = header.parentHash;
         } else {
+            console.log("Is NOT PROD");
+
             // BLOCK = BLOCK_HASH_VOUCHER_MULTIPLE_LANDS;
-            BLOCK = "0x1dcd6647758f56f5b7515155f672e37bf48246c14f3890e5871e9b35de324378"
+            // BLOCK = "0x57350f266a0c2bd9298c2d9a5d1564c680dfb20065416c730733454586369852"
+
+            // New PURCHASE block (2,190,051)
+            // BLOCK = "0xd92b53d3c0275b30efa38b56262426ea87a0924518790505cf597d017a65b3c7";
+
+            // New LISTING block
+            // BLOCK = "0x28a6eb69f1dd2881bc7f8ce6bb027b1232912d88cbb8e868e6a2f8d458d39618";
+            BLOCK = "0x4ee4f5898d7d66e38c7fd791adc4d987dac71524466321f77cf64f310a8d19b8";
+
+
         }
 
         // Subscribing to blocks from the chain (toggle commented line to test)
@@ -108,9 +140,38 @@ function skybreach_bot() {
                 let contract = eip_call.action?.Call;
                 if (contract != RMRK_CONTRACT) {
                     return;
+                } else {
+                    console.log("RMRK!");
                 }
 
+                // console.log(eip_call);
+
                 let data = eip_call.input;
+
+                if (data.includes(LISTING_FUNCTION_PREFIX) || data.includes(RELISTING_FUNCTION_PREFIX)) {
+                    console.log("it's a listing");
+                    is_a_listing = true;
+                    // Is a listing!
+                    // 0x50fd7367
+                    // 0000000000000000000000000000000000000000000000000000000000007256 <- plot
+                    // 000000000000000000000000000000000000000000000000000000e8d4a51000 <- price
+                    let plot = data.slice(10, 74);
+                    while (plot.charAt(0) == "0") {
+                        plot = plot.substring(1);
+                    }
+                    let price = data.slice(75);
+                    while (price.charAt(0) == "0") {
+                        price = price.substring(1);
+                    }
+                    console.log("price:: ", price);
+                    price = parseInt(price, 16);
+                    console.log("price: ", price);
+                    price = price * 10 ** -10;
+                    plot = parse_data.convert_hex_to_x_y_coordinates(plot);
+                    selling_price = price;
+                    coordinates = `(${plot})`
+                }
+
                 // We need to loop through the events to correlate buyer/seller and purchase price
                 blockEvents.forEach((r) => {
 
@@ -123,8 +184,15 @@ function skybreach_bot() {
                     // correlated to our specific extrinsic
                     let extrinsic_id = r.phase.asApplyExtrinsic.words[0];
                     if (extrinsic_index != extrinsic_id) {
+                        // not relevant event
                         return;
                     }
+
+                    if (r.event.index == BALANCE_WITHDRAW_EVENT_FOR_SELLER) {
+                        seller = r.event.data[0];
+                        console.log(seller.toString());
+                    }
+
 
                     if (r.event.index == BUYER_INDEX) {
                         purchaser = r.event.data[0];
@@ -174,12 +242,19 @@ function skybreach_bot() {
                     let statement = `SKYBREACH LAND VOUCHER REDEEMED!\nLocation: ${coordinates}\nRedeemer: ${purchaser}`;
                     console.log(statement);
                     webex.post(statement);
-                    webex.post(moon_url);
                     if (isProd) {
                         twitter.skybreach_listing(statement);
                     }
+                } else if (is_a_listing) {
+                    let statement = `SKYBREACH LAND LISTED!\nLocation: ${coordinates}\nSeller: ${seller}\nPrice: ${selling_price} RMRK`;
+                    console.log(statement);
+                    webex.post(statement);
                 }
             });
+
+            if (!isProd) {
+                process.exit(0);
+            }
         });
     });
 }
