@@ -13,13 +13,15 @@ const twit = require("./twitter.cjs");
 const telegram = require("./telegram.cjs");
 const webex = require("./webex.cjs");
 
-
-
-
-
 const EVRLOOT_TAROT_COLLECTION_ID = "90c6619c6b94fcfd34-EVRLOOT_TAROT_CARDS";
 const EVRLOOT_ITEMS_COLLECTION_ID = "54bbd380dc3baaa27b-EVRLOOT";
 const EVRSOULS_COLLECTION_ID = "54bbd380dc3baaa27b-EVRSOULS";
+
+// const WS_URL = "wss://kusama-rpc.polkadot.io"
+// const WS_URL = "wss://node.rmrk.app"
+// const WS_URL = "wss://public-rpc.pinknode.io";
+const WS_URL = "wss://kusama-rpc.dwellir.com";
+
 
 function get_collection_url_from_raw_mint_data(data) {
     console.log(data);
@@ -71,9 +73,8 @@ const HOME_DIR = "/home/pi/"
 const DEBUG_LOGS = "unknown.txt"
 const ERROR_LOGS = "errors.log"
 
-// const WS_URL = "wss://kusama-rpc.polkadot.io"
-// const WS_URL = "wss://node.rmrk.app"
-const WS_URL = "wss://public-rpc.pinknode.io";
+
+
 console.log("Beginning run on index.js...")
 
 
