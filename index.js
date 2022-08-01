@@ -75,6 +75,7 @@ const WS_URL = "wss://kusama-rpc.polkadot.io"
 
 console.log("Beginning run on index.js...")
 
+
 // const provider = new WsProvider('wss://node.rmrk.app') // Use for production
 const provider = new WsProvider(WS_URL) // Use for production
 
