@@ -1,7 +1,7 @@
 #/usr/bin/sh
 source /home/pi/.bashrc
 
-until cd /home/pi/rmrk/rmrk-sales-twitter-bot && node index.js; do
+until cd /home/pi/rmrk/rmrk-sales-twitter-bot && node index.js >> /home/pi/git-logs/running-bot.log; do
     echo "running, respawning..." >&2
     sleep 1
 done
