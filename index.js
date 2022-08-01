@@ -71,8 +71,9 @@ const HOME_DIR = "/home/pi/"
 const DEBUG_LOGS = "unknown.txt"
 const ERROR_LOGS = "errors.log"
 
-const WS_URL = "wss://kusama-rpc.polkadot.io"
-
+// const WS_URL = "wss://kusama-rpc.polkadot.io"
+// const WS_URL = "wss://node.rmrk.app"
+const WS_URL = "wss://public-rpc.pinknode.io";
 console.log("Beginning run on index.js...")
 
 
