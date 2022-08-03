@@ -515,7 +515,7 @@ function handle_equip(signer, interaction_as_list) {
 async function twitter_rmrk_bot() {
     try {
         console.log("Running twitter_rmrk_bot");
-        webex.post_to_stickie_room("hello");
+        webex.post_to_stickie_room("hello from kanaria watcher");
         let latest_block = 0;
         api.rpc.chain.subscribeNewHeads(async (header) => {
 
