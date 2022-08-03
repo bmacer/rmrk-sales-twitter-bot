@@ -21,8 +21,9 @@ const webex = require("./webex.cjs");
 const twitter = require("./twitter.cjs");
 
 // Web Sockets
-const MOONRIVER_WS = "wss.api.moonriver.moonbeam.network";
-const BACKUP_WS = "moonriver-rpc.dwellir.com"
+// const WS_URL = "wss://wss.api.moonriver.moonbeam.network";
+const WS_URL = "wss://moonriver-rpc.dwellir.com"
+// const WS_URL = "wss://public-rpc.pinknode.io"
 
 // RMRK ETH contract
 // https://moonriver.moonscan.io/address/0x98af019cdf16990130cba555861046b02e9898cc
@@ -57,9 +58,9 @@ const TRANSFER_INDEX_ID = "";
 // Index for Event that will provide CHANGE PRICE details
 const CHANGE_PRICE_INDEX_ID = "";
 
-let ws = MOONRIVER_WS;
+// let ws = WS_URL;
 
-const provider = new WsProvider(`wss://${ws}`) // Use for production
+const provider = new WsProvider(WS_URL) // Use for production
 const api = await new ApiPromise({ provider }).isReady;
 
 function skybreach_bot() {
