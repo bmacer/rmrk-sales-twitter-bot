@@ -15,6 +15,8 @@ module.exports.convert_hex_to_x_y_coordinates = function convert_hex_to_x_y_coor
 }
 
 module.exports.parse = function parse_data(data) {
+    let count = 1;
+    console.log("DATA", data);
     let method = data.slice(0, 10);
     data = data.slice(10);
 
@@ -23,21 +25,24 @@ module.exports.parse = function parse_data(data) {
         data = data.slice(64);
     }
 
-    let b = data.slice(0, 64);
-    data = data.slice(64);
+    if (method != "0xd6febde8") {
+        // 0xd6febde8 looks to be purchase-single-land, so we already know the count is 1
+        // for others, we need to know how many to count
+        let b = data.slice(0, 64);
+        data = data.slice(64);
 
-    let c = data.slice(0, 64);
-    data = data.slice(64);
+        let c = data.slice(0, 64);
+        data = data.slice(64);
 
-    let d = data.slice(0, 64);
-    data = data.slice(64);
+        let d = data.slice(0, 64);
+        data = data.slice(64);
 
-    let e = data.slice(0, 64);
-    data = data.slice(64);
-
-    let count_raw = data.slice(0, 64);
-    data = data.slice(64);
-    let count = parseInt(count_raw.replace(/^0/, ''));
+        let e = data.slice(0, 64);
+        data = data.slice(64);
+        let count_raw = data.slice(0, 64);
+        data = data.slice(64);
+        count = parseInt(count_raw.replace(/^0/, ''));
+    }
 
     let lands = [];
 

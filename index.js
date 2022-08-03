@@ -46,7 +46,7 @@ const BUYER_INDEX = "0x0a08";
 const PURCHASE_INDEX_ID = "0x6802";
 
 // Index for Event that will provide LISTING details
-const BALANCE_WITHDRAW_EVENT_FOR_SELLER = "0x0a08";
+// const BALANCE_WITHDRAW_EVENT_FOR_SELLER = "0x0a08";
 
 // Index for Event that will provide OFFER details
 const OFFER_INDEX_ID = "";
@@ -106,7 +106,7 @@ function skybreach_bot() {
 
             // New LISTING block
             // BLOCK = "0x28a6eb69f1dd2881bc7f8ce6bb027b1232912d88cbb8e868e6a2f8d458d39618";
-            BLOCK = "0x4ee4f5898d7d66e38c7fd791adc4d987dac71524466321f77cf64f310a8d19b8";
+            BLOCK = "0xe4ca1675512fedc27331ef9aca42833ce0bef74f943bf73a344566a6330ff61d";
 
 
         }
@@ -188,14 +188,17 @@ function skybreach_bot() {
                         return;
                     }
 
-                    if (r.event.index == BALANCE_WITHDRAW_EVENT_FOR_SELLER) {
-                        seller = r.event.data[0];
-                        console.log(seller.toString());
-                    }
+                    // if (r.event.index == BALANCE_WITHDRAW_EVENT_FOR_SELLER) {
+                    //     console.log(`matched BALANCE_WITHDRAW_EVENT_FOR_SELLER: ${BALANCE_WITHDRAW_EVENT_FOR_SELLER}`)
+                    //     seller = r.event.data[0];
+                    //     console.log(`Seller: ${seller.toString()}`);
+                    // }
 
 
                     if (r.event.index == BUYER_INDEX) {
+                        console.log(`matched BUYER_INDEX: ${BUYER_INDEX}`)
                         purchaser = r.event.data[0];
+                        console.log(`purchaser: ${purchaser}`)
                     }
 
                     if (r.event.index.toString() == PURCHASE_INDEX_ID) {
@@ -207,7 +210,12 @@ function skybreach_bot() {
                             purchase_price = price_long / (10 ** 10);
                         }
                         purchaser = r.event.data[1];
-                        seller = r.event.data[2];
+                        console.log("Purchaser: ", purchaser.toString())
+                        if (!seller || seller == "0x7e8421b873429eE58A06055E89CD0DBeF51784F0") {
+                            seller = r.event.data[2];
+                        }
+                        console.log("Seller: ", seller.toString())
+
                     }
 
                     let topics = r.event.data[0].topics;
@@ -225,7 +233,11 @@ function skybreach_bot() {
                     }
                 })
                 if (!coordinates) {
+                    console.log("No coordinates");
+                    console.log(data);
                     coordinates = parse_data.parse(data);
+                } else {
+                    console.log("Coordinates: ", coordinates);
                 }
 
 
