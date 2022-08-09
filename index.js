@@ -17,11 +17,16 @@ const EVRLOOT_TAROT_COLLECTION_ID = "90c6619c6b94fcfd34-EVRLOOT_TAROT_CARDS";
 const EVRLOOT_ITEMS_COLLECTION_ID = "54bbd380dc3baaa27b-EVRLOOT";
 const EVRSOULS_COLLECTION_ID = "54bbd380dc3baaa27b-EVRSOULS";
 
-// const WS_URL = "wss://kusama-rpc.polkadot.io"
-// const WS_URL = "wss://node.rmrk.app"
-// const WS_URL = "wss://public-rpc.pinknode.io";
-const WS_URL = "wss://kusama-rpc.dwellir.com";
-
+// // const WS_URL = "wss://kusama-rpc.polkadot.io"
+// // const WS_URL = "wss://node.rmrk.app"
+// // const WS_URL = "wss://public-rpc.pinknode.io";
+// const WS_URL = "wss://kusama-rpc.dwellir.com";
+const ws_urls = [
+    "wss://kusama-rpc.polkadot.io",
+    "wss://node.rmrk.app",
+    "wss://public-rpc.pinknode.io",
+    "wss://kusama-rpc.dwellir.com",
+]
 
 function get_collection_url_from_raw_mint_data(data) {
     console.log(data);
@@ -63,7 +68,7 @@ const logger = winston.createLogger({
 logger.info("testing success log");
 
 
-telegram.arch("i am archiverse")
+// telegram.arch("i am archiverse")
 //telegram.post("Running")
 //webex.post("Running")
 const MINIMUM_V1_PRICE = 0.05
@@ -79,10 +84,16 @@ console.log("Beginning run on index.js...")
 
 
 // const provider = new WsProvider('wss://node.rmrk.app') // Use for production
-const provider = new WsProvider(WS_URL) // Use for production
+let ws_url = ws_urls[Math.floor(Math.random() * ws_urls.length)];
+let provider;
+try {
+    provider = new WsProvider(ws_url) // Use for production
+} catch {
+    process.exit(0);
+}
 
 //kusama-rpc.polkadot.io
-console.log(`Connected to WS Provider: ${WS_URL}`)
+console.log(`Connected to WS Provider: ${ws_url}`)
 const api = await new ApiPromise({ provider }).isReady;
 console.log("API object initialized...")
 let prod = true;
@@ -244,7 +255,13 @@ function handle_list(signer, interaction_as_list) {
         }
     }
     if (version == "2.0.0") {
-        url = `https://kanaria.rmrk.app/catalogue/${nft}`;
+        let isKanariaOrItem = false;
+        url = `https://singular.app/collectibles/${nft}`;
+        if (nft.includes("e0b9bdcc456a36497a")) {
+            url = "https://kanaria.rmrk.app/catalogue/${nft}";
+            isKanariaOrItem = true;
+
+        }
         // is it bird?
         let prestatement = "";
         let level = "";
@@ -299,7 +316,11 @@ function handle_list(signer, interaction_as_list) {
                 webex.post(statement);
             }
         } else {
-            console.log("no bird");
+            if (isKanariaOrItem) {
+                console.log("ITEM!");
+                console.log(statement);
+            }
+            console.log("singular");
             console.log(statement);
             // webex.post(statement);
         }
