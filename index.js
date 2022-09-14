@@ -2,7 +2,7 @@ import { ApiPromise, WsProvider } from "@polkadot/api";
 
 import fs from "fs";
 import twit from "./twitter.cjs";
-import telegram from "./telegram.cjs";
+// import telegram from "./telegram.cjs";
 import webex from "./webex.js";
 import winston from "winston";
 
@@ -184,10 +184,6 @@ async function twitter_rmrk_bot() {
             }
             if (i.method.section == "system") {
               let a = i.args[0].toHuman();
-              if (a.includes("36bad3dc147db9792b")) {
-                telegram.arch(a);
-              }
-              console.log("system");
               let interaction_as_list = i.args[0].toHuman().split("::");
               if (interaction_as_list.length >= 3) {
                 console.log(i.args[0].toHuman());
