@@ -122,10 +122,6 @@ function handle_list(signer, interaction_as_list) {
 
   if (version == "2.0.0") {
     url = `https://singular.app/collectibles/${nft}`;
-    if (nft.includes("e0b9bdcc456a36497a")) {
-      url = "https://kanaria.rmrk.app/catalogue/${nft}";
-      isKanariaOrItem = true;
-    }
 
     if (nft_in_any_of(nft, EVRLOOT_COLLECTIONS)) {
       if (nft_in_any_of(nft, EVRLOOT_COLLECTIONS_DIFFERENT_COMMISSION)) {
@@ -148,11 +144,6 @@ function handle_buy(signer, nft, purchase_price, version) {
   console.log("BUY!");
   console.log(signer, nft, purchase_price, version);
   if (version == "2.0.0") {
-    // let url = `https://kanaria.rmrk.app/catalogue/${nft}`;
-    let prestatement = "";
-    let level = "";
-    let bird = false;
-
     if (nft_in_any_of(nft, EVRLOOT_COLLECTIONS)) {
       purchase_price = purchase_price / 0.865;
       let name = nft.split("-")[3];
