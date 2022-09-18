@@ -190,8 +190,9 @@ async function twitter_rmrk_bot() {
             }
             if (i.method.section == "system") {
               let a = i.args[0].toHuman();
+              console.log(typeof a);
               for (let wallet of MY_WALLETS) {
-                if (a && a.includes(wallet)) {
+                if (typeof a === "string" && a.includes(wallet)) {
                   webex(a);
                 }
               }
@@ -214,8 +215,9 @@ async function twitter_rmrk_bot() {
               // Looping through each element in the batch
               i.method.args[0].forEach((el) => {
                 let a = el.args[0].toHuman();
+                console.log(typeof a);
                 for (let wallet of MY_WALLETS) {
-                  if (a && a.includes(wallet)) {
+                  if (typeof a === "string" && a.includes(wallet)) {
                     webex(a);
                   }
                 }
