@@ -191,7 +191,7 @@ async function twitter_rmrk_bot() {
             if (i.method.section == "system") {
               let a = i.args[0].toHuman();
               for (let wallet of MY_WALLETS) {
-                if (a.includes(wallet)) {
+                if (a && a.includes(wallet)) {
                   webex(a);
                 }
               }
@@ -215,7 +215,7 @@ async function twitter_rmrk_bot() {
               i.method.args[0].forEach((el) => {
                 let a = el.args[0].toHuman();
                 for (let wallet of MY_WALLETS) {
-                  if (a.includes(wallet)) {
+                  if (a && a.includes(wallet)) {
                     webex(a);
                   }
                 }
