@@ -6,6 +6,12 @@ import twit from "./twitter.cjs";
 import webex from "./webex.js";
 import winston from "winston";
 
+const BRAWNDOJO_KSM = "FRvj8ZJN8nKe9DXyffQbTnnryyWLbfZ8bijfDAo3B869PoL";
+const EVRLOOT_KSM = "HcDGHiENrkdpFtVFiLuJhVEYzxtEg3n7Qe5RYn1He46HpPp";
+const TESTING_KSM = "EXkETe3mwddfP8pY2Aq28bTXXd6tSeMmAF6fHZwwfdkJz3U";
+
+const MY_WALLETS = [BRAWNDOJO_KSM, EVRLOOT_KSM, TESTING_KSM];
+
 const EVRLOOT_TAROT_COLLECTION_ID = "90c6619c6b94fcfd34-EVRLOOT_TAROT_CARDS";
 const EVRLOOT_ITEMS_COLLECTION_ID = "54bbd380dc3baaa27b-EVRLOOT";
 const EVRSOULS_COLLECTION_ID = "54bbd380dc3baaa27b-EVRSOULS";
@@ -184,6 +190,12 @@ async function twitter_rmrk_bot() {
             }
             if (i.method.section == "system") {
               let a = i.args[0].toHuman();
+              for (let wallet of MY_WALLETS) {
+                if (a.includes(wallet)) {
+                  webex(a);
+                }
+              }
+
               let interaction_as_list = i.args[0].toHuman().split("::");
               if (interaction_as_list.length >= 3) {
                 console.log(i.args[0].toHuman());
@@ -201,6 +213,12 @@ async function twitter_rmrk_bot() {
               let version = ""; // This is the RMRK version (1.0.0 or 2.0.0)
               // Looping through each element in the batch
               i.method.args[0].forEach((el) => {
+                let a = el.args[0].toHuman();
+                for (let wallet of MY_WALLETS) {
+                  if (a.includes(wallet)) {
+                    webex(a);
+                  }
+                }
                 // If the element is a transfer, we get the balance transferred
                 if (el.method == "transfer") {
                   // We add here because there is both the transfer to the seller and the fee
