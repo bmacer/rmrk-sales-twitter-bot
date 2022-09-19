@@ -214,13 +214,16 @@ async function twitter_rmrk_bot() {
               let version = ""; // This is the RMRK version (1.0.0 or 2.0.0)
               // Looping through each element in the batch
               i.method.args[0].forEach((el) => {
-                let a = el.args[0].toHuman();
-                console.log(typeof a);
-                for (let wallet of MY_WALLETS) {
-                  if (typeof a === "string" && a.includes(wallet)) {
-                    webex(a);
+                let a = el.args[0];
+                if (a) {
+                  a = a.toHuman();
+                  for (let wallet of MY_WALLETS) {
+                    if (typeof a === "string" && a.includes(wallet)) {
+                      webex(a);
+                    }
                   }
                 }
+
                 // If the element is a transfer, we get the balance transferred
                 if (el.method == "transfer") {
                   // We add here because there is both the transfer to the seller and the fee
