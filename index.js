@@ -6,6 +6,8 @@ import twit from "./twitter.cjs";
 import webex from "./webex.js";
 import winston from "winston";
 
+import { list, mine, sales } from "./webex.js";
+
 const BRAWNDOJO_KSM = "FRvj8ZJN8nKe9DXyffQbTnnryyWLbfZ8bijfDAo3B869PoL";
 const EVRLOOT_KSM = "HcDGHiENrkdpFtVFiLuJhVEYzxtEg3n7Qe5RYn1He46HpPp";
 const TESTING_KSM = "EXkETe3mwddfP8pY2Aq28bTXXd6tSeMmAF6fHZwwfdkJz3U";
@@ -83,6 +85,10 @@ const logger = winston.createLogger({
 //     }));
 // }
 
+list("list")
+mine("mine")
+sales("sales")
+
 logger.info("testing success log");
 
 console.log("Beginning run on index.js...");
@@ -141,7 +147,7 @@ function handle_list(signer, interaction_as_list) {
         3
       )}KSM by ${signer} ${link}`;
       twit.evrloot(statement);
-      webex(statement);
+      list(statement);
     }
   }
 }
@@ -157,7 +163,7 @@ function handle_buy(signer, nft, purchase_price, version) {
       let statement = `Evrloot Sale Alert! ${name} was purchased for ${purchase_price.toFixed(
         2
       )}KSM by ${signer} ${link}`;
-      webex(statement);
+      sales(statement);
       twit.evrloot(statement);
     }
   }
@@ -166,7 +172,7 @@ function handle_buy(signer, nft, purchase_price, version) {
 async function twitter_rmrk_bot() {
   try {
     console.log("Running twitter_rmrk_bot");
-    webex("Evrloot bot has begun");
+    // webex("Evrloot bot has begun");
     let latest_block = 0;
     api.rpc.chain.subscribeNewHeads(async (header) => {
       // Sometimes we get fed the same block twice, let's not eat it.
@@ -193,7 +199,7 @@ async function twitter_rmrk_bot() {
               console.log(typeof a);
               for (let wallet of MY_WALLETS) {
                 if (typeof a === "string" && a.includes(wallet)) {
-                  webex(a);
+                  mine(a);
                 }
               }
 
@@ -219,7 +225,7 @@ async function twitter_rmrk_bot() {
                   a = a.toHuman();
                   for (let wallet of MY_WALLETS) {
                     if (typeof a === "string" && a.includes(wallet)) {
-                      webex(a);
+                      mine(a);
                     }
                   }
                 }
